@@ -1,111 +1,117 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
+@layer base {
+  body {
+    font-family: 'Poppins', 'Montserrat', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* Custom scrollbars for clean aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
-body {
-  margin: 0;
+/* ========================================================
+   VS Cinemas Theme - Custom Toast UI Matching App Design
+   ======================================================== */
+.Toastify__toast-container {
+  width: 360px !important;
+  max-width: 92vw !important;
+  padding: 14px !important;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+.Toastify__toast {
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.45) !important;
+  color: #f8fafc !important;
+  font-family: 'Poppins', 'Montserrat', sans-serif !important;
+  font-size: 13.5px !important;
+  padding: 13px 16px !important;
+  margin-bottom: 10px !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* Success toast - Cinema Emerald */
+.Toastify__toast--success {
+  border-left: 4px solid #10b981 !important;
+}
+.Toastify__toast--success .Toastify__toast-icon svg {
+  fill: #10b981 !important;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+/* Error toast - Cinema Crimson */
+.Toastify__toast--error {
+  border-left: 4px solid #f43f5e !important;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.Toastify__toast--error .Toastify__toast-icon svg {
+  fill: #f43f5e !important;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Info toast - VS Royal Blue */
+.Toastify__toast--info {
+  border-left: 4px solid #007bff !important;
+}
+.Toastify__toast--info .Toastify__toast-icon svg {
+  fill: #38bdf8 !important;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* Warning toast - Projection Amber */
+.Toastify__toast--warning {
+  border-left: 4px solid #f59e0b !important;
+}
+.Toastify__toast--warning .Toastify__toast-icon svg {
+  fill: #f59e0b !important;
+}
+
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 0 4px !important;
+  font-weight: 500 !important;
+  color: #f1f5f9 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.Toastify__close-button {
+  color: #94a3b8 !important;
+  opacity: 0.7 !important;
+  align-self: center !important;
+  transition: opacity 0.2s, color 0.2s !important;
+}
+.Toastify__close-button:hover {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Sleek Progress Bar matching cinema theme */
+.Toastify__progress-bar {
+  height: 3px !important;
+  opacity: 0.9 !important;
+}
+.Toastify__progress-bar--success {
+  background: linear-gradient(90deg, #10b981, #34d399) !important;
+}
+.Toastify__progress-bar--error {
+  background: linear-gradient(90deg, #f43f5e, #fb7185) !important;
+}
+.Toastify__progress-bar--info {
+  background: linear-gradient(90deg, #007bff, #38bdf8) !important;
+}
+.Toastify__progress-bar--warning {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
 }
