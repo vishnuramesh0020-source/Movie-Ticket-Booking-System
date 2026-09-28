@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
       id: `user_${Date.now()}`,
       name: name.trim(),
       email: trimmedEmail,
-      password: password,
+      password,
       avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}`,
       createdAt: new Date().toISOString().split('T')[0]
     }
