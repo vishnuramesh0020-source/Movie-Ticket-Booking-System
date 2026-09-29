@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, Search, LayoutDashboard, Film } from 'lucide-react'
+import { LogOut, Bell, Search, LayoutDashboard, Film, Building2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
-export default function Navbar({ searchQuery = '', onSearchChange }) {
+export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceholder }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -16,10 +16,13 @@ export default function Navbar({ searchQuery = '', onSearchChange }) {
 
   const isDashboard = location.pathname === '/dashboard'
   const isMovies = location.pathname.startsWith('/movies')
+  const isTheatres = location.pathname.startsWith('/theatres')
 
   const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter' && !isMovies && searchQuery.trim()) {
-      navigate('/movies')
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      if (!isMovies && !isTheatres) {
+        navigate('/movies')
+      }
     }
   }
 
@@ -57,6 +60,18 @@ export default function Navbar({ searchQuery = '', onSearchChange }) {
               <Film className="w-3.5 h-3.5" />
               <span>Movies</span>
             </Link>
+
+            <Link
+              to="/theatres"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isTheatres
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Theatres</span>
+            </Link>
           </nav>
         </div>
 
@@ -69,7 +84,7 @@ export default function Navbar({ searchQuery = '', onSearchChange }) {
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
               onKeyDown={handleSearchSubmit}
-              placeholder="Search movies..."
+              placeholder={searchPlaceholder || (isTheatres ? 'Search theatres, cities, specs...' : 'Search movies...')}
               className="w-full bg-[#f8fafc] hover:bg-slate-100/60 focus:bg-white border border-slate-200/90 rounded-full pl-8 sm:pl-9 pr-3 sm:pr-4 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
             />
           </div>
@@ -92,6 +107,13 @@ export default function Navbar({ searchQuery = '', onSearchChange }) {
               title="Movies"
             >
               <Film className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/theatres"
+              className={`p-1.5 rounded-md ${isTheatres ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+              title="Theatres"
+            >
+              <Building2 className="w-3.5 h-3.5" />
             </Link>
           </div>
 

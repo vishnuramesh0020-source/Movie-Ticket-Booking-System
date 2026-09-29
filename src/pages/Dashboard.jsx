@@ -503,12 +503,8 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Action 3: Theatres & Screens */}
-            <div
-              onClick={() => {
-                handleTabChange('theatres')
-                const el = document.getElementById('theatres-section')
-                if (el) el.scrollIntoView({ behavior: 'smooth' })
-              }}
+            <Link
+              to="/theatres"
               className="bg-white border border-slate-200/80 hover:border-emerald-400 p-4 rounded-2xl cursor-pointer transition-all duration-200 hover:-translate-y-0.5 shadow-2xs hover:shadow-md flex items-center gap-3.5 group"
             >
               <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#228653] flex items-center justify-center shrink-0 group-hover:bg-[#228653] group-hover:text-white transition-colors">
@@ -519,10 +515,10 @@ export default function Dashboard() {
                   Multiplex Theatres
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Venues & sound specs
+                  Venues, screens & shows
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Quick Action 4: View E-Tickets */}
             <div
@@ -1458,6 +1454,15 @@ export default function Dashboard() {
                 <span>Full Catalog</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
+
+              <Link
+                to="/theatres"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors"
+                title="Explore All Multiplex Theatres & Screens"
+              >
+                <span>All Theatres</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
 
@@ -1487,18 +1492,28 @@ export default function Dashboard() {
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200/70">
-                    <span className="text-[11px] text-slate-500 uppercase font-semibold block mb-1.5">
-                      Auditorium Facilities:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {th.facilities.map((fac) => (
-                        <span key={fac} className="bg-white border border-slate-200 text-slate-700 text-[11px] px-2 py-0.5 rounded shadow-2xs">
-                          {fac}
-                        </span>
-                      ))}
+                  <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] text-slate-500 uppercase font-semibold block mb-1.5">
+                        Auditorium Facilities:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {th.facilities.map((fac) => (
+                          <span key={fac} className="bg-white border border-slate-200 text-slate-700 text-[11px] px-2 py-0.5 rounded shadow-2xs">
+                            {fac}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
+
+                  <Link
+                    to={`/theatres/${th.id}`}
+                    className="inline-flex items-center justify-center gap-1.5 w-full py-2 bg-white hover:bg-blue-50 text-blue-600 font-bold text-xs rounded-xl border border-slate-200 transition-colors shadow-2xs"
+                  >
+                    <span>View Screens & Showtimes</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               ))}
             </div>

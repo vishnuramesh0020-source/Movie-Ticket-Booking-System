@@ -11,6 +11,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import Movies from './pages/Movies'
 import MovieDetail from './pages/MovieDetail'
+import Theatres from './pages/Theatres'
+import TheatreDetail from './pages/TheatreDetail'
 
 export default function App() {
   return (
@@ -45,6 +47,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <MovieDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/theatres"
+            element={
+              <ProtectedRoute>
+                <Theatres />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/theatres/:id"
+            element={
+              <ProtectedRoute>
+                <TheatreDetail />
               </ProtectedRoute>
             }
           />

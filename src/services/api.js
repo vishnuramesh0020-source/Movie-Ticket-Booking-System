@@ -281,63 +281,501 @@ function formatTvmazeShow(item) {
   }
 }
 
-// Multiplex Theatres across the network
+// Multiplex Theatres across the network (Enriched for Module 4)
 export const THEATRES_LIST = [
   {
     id: 'th-1',
     name: 'VS Cinemas IMAX Laser - Central Galleria',
     location: 'MG Road, Central Business District',
+    address: 'Level 4, The Central Galleria, 88 MG Road, Ashok Nagar',
+    city: 'Bengaluru',
     screensCount: 6,
     dailyShows: 24,
     soundSystem: 'Dolby Atmos 128 Channel',
-    facilities: ['IMAX Laser 3D', 'VIP Recliners', 'Café Lounge']
+    facilities: ['IMAX Laser 3D', 'VIP Recliners', 'Gourmet Café', 'Valet Parking', 'Wheelchair Access'],
+    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 1840,
+    contact: {
+      phone: '+91 80 4910 2200',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'galleria.blr@vscinemas.com',
+      boxOfficeHours: '9:30 AM - 11:45 PM Daily',
+      manager: 'Rajesh Kumar (Senior Ops Manager)'
+    },
+    locationDetails: {
+      address: 'Level 4, The Central Galleria, 88 MG Road, Ashok Nagar',
+      city: 'Bengaluru',
+      landmark: 'Near MG Road Metro Station & Trinity Circle',
+      coordinates: { lat: 12.9756, lng: 77.6066 },
+      mapUrl: 'https://maps.google.com/?q=MG+Road+Bengaluru',
+      parking: '4-level multi-deck parking with dedicated valet and EV charging points',
+      transit: 'Direct connected skywalk from MG Road Metro (Purple Line) Gate 2'
+    },
+    screens: [
+      { id: 'th1-s1', screenNumber: 1, name: 'Screen 1 (IMAX Laser 3D)', type: 'IMAX Laser 3D', capacity: 380, sound: 'Dolby Atmos 128-Channel', projection: 'Dual 4K Laser RealDepth', features: ['1.43:1 Giant Canvas', 'VIP Leather Recliners'] },
+      { id: 'th1-s2', screenNumber: 2, name: 'Screen 2 (Dolby Cinema)', type: 'Dolby Cinema', capacity: 280, sound: 'Dolby Atmos Surround', projection: 'Dolby Vision Dual 4K', features: ['Deep Blacks HDR', 'Step-Free Seating'] },
+      { id: 'th1-s3', screenNumber: 3, name: 'Screen 3 (4DX Dynamic)', type: '4DX', capacity: 160, sound: 'JBL 7.1 Surround', projection: 'Barco 4K Laser', features: ['Motion Synchronized Seats', 'Environmental FX (Fog, Wind, Scents)'] },
+      { id: 'th1-s4', screenNumber: 4, name: 'Screen 4 (Premiere Club)', type: 'Premiere 2D', capacity: 210, sound: 'Dolby 7.1', projection: 'Christie Laser 4K', features: ['Ergonomic Plush Seats', 'Spacious Legroom'] },
+      { id: 'th1-s5', screenNumber: 5, name: 'Screen 5 (Classic Cinema)', type: 'Classic 2D', capacity: 190, sound: 'Dolby Surround 7.1', projection: 'Barco 2K Digital', features: ['Acoustic Wall Treatment', 'Snack Tray Holders'] },
+      { id: 'th1-s6', screenNumber: 6, name: 'Screen 6 (VIP Gold Class)', type: 'Gold Class', capacity: 90, sound: 'THX Spatial Audio', projection: 'Sony 4K SXRD', features: ['Full Flat Recliners', 'At-Seat Butler Service'] }
+    ],
+    availableShows: [
+      { id: 'th1-sh1', time: '10:15 AM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 380, language: 'English', status: 'Filling Fast' },
+      { id: 'th1-sh2', time: '1:45 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 420, language: 'English', status: 'Available' },
+      { id: 'th1-sh3', time: '4:30 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Dolby Cinema)', format: 'Dolby Atmos', price: 340, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th1-sh4', time: '7:45 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 400, language: 'English', status: 'Filling Fast' },
+      { id: 'th1-sh5', time: '10:30 PM', movieTitle: 'Interstellar', screen: 'Screen 2 (Dolby Cinema)', format: 'Dolby Atmos', price: 320, language: 'English', status: 'Available' }
+    ]
   },
   {
     id: 'th-2',
     name: 'VS Cinemas Dolby Cinema - Grand Mall',
     location: 'Koramangala 5th Block',
+    address: 'Grand Forum Mall, Hosur Main Road, Koramangala 5th Block',
+    city: 'Bengaluru',
     screensCount: 5,
     dailyShows: 20,
     soundSystem: 'Dolby Cinema & Christie Dual 4K',
-    facilities: ['Dolby Cinema', 'Wheelchair Access', 'Gourmet Counter']
+    facilities: ['Dolby Cinema', 'Wheelchair Access', 'Gourmet Counter', 'Recliner Lounges', 'Instant Ticket Kiosks'],
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.8,
+    reviewsCount: 1530,
+    contact: {
+      phone: '+91 80 4122 8844',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'grandmall.blr@vscinemas.com',
+      boxOfficeHours: '9:00 AM - 11:30 PM Daily',
+      manager: 'Sunita Menon (Guest Relations Lead)'
+    },
+    locationDetails: {
+      address: 'Grand Forum Mall, Hosur Main Road, Koramangala 5th Block',
+      city: 'Bengaluru',
+      landmark: 'Next to Koramangala Police Station & Jyoti Nivas College',
+      coordinates: { lat: 12.9352, lng: 77.6245 },
+      mapUrl: 'https://maps.google.com/?q=Koramangala+Bengaluru',
+      parking: 'Basement levels B1 and B2 with online pre-booking',
+      transit: 'Koramangala BMTC Junction bus stop right outside'
+    },
+    screens: [
+      { id: 'th2-s1', screenNumber: 1, name: 'Screen 1 (Dolby Cinema)', type: 'Dolby Cinema', capacity: 310, sound: 'Dolby Atmos 64-Channel', projection: 'Christie 4K Laser', features: ['Dolby Vision HDR', 'Gliding Recliners'] },
+      { id: 'th2-s2', screenNumber: 2, name: 'Screen 2 (Onyx LED)', type: 'Samsung Onyx LED', capacity: 220, sound: 'Harman Professional', projection: 'Active Matrix LED', features: ['DCI Certified 4K HDR', 'Zero Distortion Sound'] },
+      { id: 'th2-s3', screenNumber: 3, name: 'Screen 3 (Atmos Gold)', type: 'Dolby Atmos', capacity: 180, sound: 'Dolby Atmos', projection: 'Barco 4K Laser', features: ['Plush Velvet Seating', 'Food & Drink Table'] },
+      { id: 'th2-s4', screenNumber: 4, name: 'Screen 4 (Family Lounge)', type: 'Standard 2D', capacity: 240, sound: 'JBL 7.1', projection: 'NEC Digital 2K', features: ['Kids Booster Seats', 'Wide Armrests'] },
+      { id: 'th2-s5', screenNumber: 5, name: 'Screen 5 (Classic)', type: 'Standard 2D', capacity: 190, sound: 'Dolby 7.1', projection: 'Barco 2K', features: ['Standard Stadium Rows', 'Fast Exit Corridors'] }
+    ],
+    availableShows: [
+      { id: 'th2-sh1', time: '11:00 AM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (Dolby Cinema)', format: 'Dolby Vision', price: 320, language: 'English', status: 'Available' },
+      { id: 'th2-sh2', time: '2:15 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (Dolby Cinema)', format: 'Dolby Vision', price: 360, language: 'English', status: 'Filling Fast' },
+      { id: 'th2-sh3', time: '5:30 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Onyx LED)', format: 'Onyx 4K', price: 380, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th2-sh4', time: '8:45 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (Dolby Cinema)', format: 'Dolby Vision', price: 380, language: 'English', status: 'Filling Fast' }
+    ]
   },
   {
     id: 'th-3',
     name: 'VS Cinemas 4DX Sensory - Cyber City',
     location: 'Electronics City Phase 1',
+    address: 'Tech Boulevard, Velocity Mall, Electronics City Phase 1',
+    city: 'Bengaluru',
     screensCount: 4,
     dailyShows: 16,
     soundSystem: '4DX Motion Sound System',
-    facilities: ['4DX Dynamic Seats', 'Air & Water FX', 'Online Valet']
+    facilities: ['4DX Dynamic Seats', 'Air & Water FX', 'Online Valet', 'Gaming Arcade', 'Cafeteria'],
+    image: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.7,
+    reviewsCount: 1190,
+    contact: {
+      phone: '+91 80 4355 1199',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'cybercity.blr@vscinemas.com',
+      boxOfficeHours: '10:00 AM - 11:15 PM Daily',
+      manager: 'Vikram Joshi (Operations Manager)'
+    },
+    locationDetails: {
+      address: 'Tech Boulevard, Velocity Mall, Electronics City Phase 1',
+      city: 'Bengaluru',
+      landmark: 'Near Infosys Gate 1 & Toll Plaza',
+      coordinates: { lat: 12.8452, lng: 77.6602 },
+      mapUrl: 'https://maps.google.com/?q=Electronics+City+Bengaluru',
+      parking: 'Corporate & Mall Valet Parking for 1200+ cars',
+      transit: 'Electronics City Elevated Flyover & Yellow Line Metro'
+    },
+    screens: [
+      { id: 'th3-s1', screenNumber: 1, name: 'Screen 1 (4DX Extreme)', type: '4DX 3D', capacity: 160, sound: 'JBL Professional 4DX Sound', projection: 'Barco 4K Laser', features: ['Roll, Pitch & Heave Seats', 'Snow, Rain & Scent Effects'] },
+      { id: 'th3-s2', screenNumber: 2, name: 'Screen 2 (Dolby Atmos Prime)', type: 'Dolby Atmos', capacity: 250, sound: 'Dolby Atmos 9.1', projection: 'Christie Laser 4K', features: ['Acoustic Curved Walls', 'Premium Pushback Seats'] },
+      { id: 'th3-s3', screenNumber: 3, name: 'Screen 3 (Laser 3D)', type: 'Laser 3D', capacity: 200, sound: 'Dolby 7.1', projection: 'Barco Laser', features: ['High Lumens Polarized 3D', 'Wide Aisles'] },
+      { id: 'th3-s4', screenNumber: 4, name: 'Screen 4 (Executive)', type: 'Classic 2D', capacity: 170, sound: 'Dolby 7.1', projection: 'Sony 4K', features: ['Individual Armrests', 'Spacious Seating'] }
+    ],
+    availableShows: [
+      { id: 'th3-sh1', time: '11:30 AM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (4DX Extreme)', format: '4DX 3D', price: 420, language: 'English', status: 'Available' },
+      { id: 'th3-sh2', time: '3:00 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (4DX Extreme)', format: '4DX 3D', price: 420, language: 'English', status: 'Filling Fast' },
+      { id: 'th3-sh3', time: '6:30 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 2 (Dolby Atmos Prime)', format: 'Dolby Atmos', price: 340, language: 'English', status: 'Almost Full' },
+      { id: 'th3-sh4', time: '9:45 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 1 (4DX Extreme)', format: '4DX 3D', price: 450, language: 'Telugu', status: 'Filling Fast' }
+    ]
   },
   {
     id: 'th-4',
-    name: 'VS Cinemas Gold Class - Bay View',
-    location: 'Indiranagar 100ft Road',
-    screensCount: 3,
-    dailyShows: 12,
+    name: 'VS Cinemas Gold Class - Bay View Multiplex',
+    location: 'Marine Lines & Marine Drive Promenade',
+    address: 'Opposite Marine Drive Promenade, Marine Lines, South Mumbai',
+    city: 'Mumbai',
+    screensCount: 4,
+    dailyShows: 16,
     soundSystem: 'THX Certified Ultraphonic',
-    facilities: ['Gold Class Loungers', 'Butler Service', 'Private Screening']
+    facilities: ['Gold Class Loungers', 'Butler Service', 'Private Screening', 'Gourmet Dining', 'Sea View Lounge'],
+    image: 'https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=800&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 2100,
+    contact: {
+      phone: '+91 22 2281 9900',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'bayview.mum@vscinemas.com',
+      boxOfficeHours: '9:30 AM - Midnight Daily',
+      manager: 'Feroz Wadia (Director of Hospitality)'
+    },
+    locationDetails: {
+      address: 'Opposite Marine Drive Promenade, Marine Lines, South Mumbai',
+      city: 'Mumbai',
+      landmark: 'Next to Cricket Club of India & Brabourne Stadium',
+      coordinates: { lat: 18.9438, lng: 72.8234 },
+      mapUrl: 'https://maps.google.com/?q=Marine+Drive+Mumbai',
+      parking: 'Dedicated complimentary valet parking for all cinema patrons',
+      transit: '5 minutes walk from Marine Lines Railway Station'
+    },
+    screens: [
+      { id: 'th4-s1', screenNumber: 1, name: 'Screen 1 (Royal Gold Class)', type: 'Gold Class VIP', capacity: 110, sound: 'THX Spatial Sound', projection: 'Christie RealLaser 4K', features: ['Full Reclining Beds', 'Chef Menu Service', 'Cashmere Blankets'] },
+      { id: 'th4-s2', screenNumber: 2, name: 'Screen 2 (Dolby Atmos Prime)', type: 'Dolby Atmos', capacity: 220, sound: 'Dolby Atmos 64-Channel', projection: 'Barco 4K Laser', features: ['Italian Leather Seats', 'Generous Pitch'] },
+      { id: 'th4-s3', screenNumber: 3, name: 'Screen 3 (Celebrity Suite)', type: 'Private VIP', capacity: 70, sound: 'Bowers & Wilkins Spatial', projection: 'Sony 4K HDR', features: ['Private Screen Hire', 'Dedicated Lounge Bar'] },
+      { id: 'th4-s4', screenNumber: 4, name: 'Screen 4 (Premiere)', type: 'Standard 2D', capacity: 190, sound: 'Dolby 7.1', projection: 'Barco 2K', features: ['High Tiered Seating', 'Direct Concession Link'] }
+    ],
+    availableShows: [
+      { id: 'th4-sh1', time: '10:45 AM', movieTitle: 'Interstellar', screen: 'Screen 1 (Royal Gold Class)', format: 'Gold Class VIP', price: 650, language: 'English', status: 'Available' },
+      { id: 'th4-sh2', time: '2:30 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (Royal Gold Class)', format: 'Gold Class VIP', price: 750, language: 'English', status: 'Filling Fast' },
+      { id: 'th4-sh3', time: '6:15 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 2 (Dolby Atmos Prime)', format: 'Dolby Atmos', price: 420, language: 'English', status: 'Almost Full' },
+      { id: 'th4-sh4', time: '9:30 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (Royal Gold Class)', format: 'Gold Class VIP', price: 800, language: 'English', status: 'Filling Fast' }
+    ]
   },
   {
     id: 'th-5',
-    name: 'VS Cinemas CinePlex - Nexus Avenue',
-    location: 'Whitefield Main Road',
-    screensCount: 5,
-    dailyShows: 20,
-    soundSystem: 'Barco 4K Laser & 7.1 Surround',
-    facilities: ['Playhouse Kids', 'Laser Projection', 'Food Court Link']
+    name: 'VS Cinemas IMAX Dome - Phoenix Palladium',
+    location: 'Lower Parel, Phoenix Mills Compound',
+    address: 'Phoenix Palladium, 462 Senapati Bapat Marg, Lower Parel',
+    city: 'Mumbai',
+    screensCount: 7,
+    dailyShows: 28,
+    soundSystem: 'IMAX 12-Channel Precision & Dolby Atmos',
+    facilities: ['IMAX Laser 3D', 'Dolby Cinema', 'Onyx LED', 'Luxury Lounge', 'Valet Parking', 'Wheelchair Access'],
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 2650,
+    contact: {
+      phone: '+91 22 6655 4321',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'palladium.mum@vscinemas.com',
+      boxOfficeHours: '9:00 AM - Midnight Daily',
+      manager: 'Kavita Singhal (Multiplex Operations Head)'
+    },
+    locationDetails: {
+      address: 'Phoenix Palladium, 462 Senapati Bapat Marg, Lower Parel',
+      city: 'Mumbai',
+      landmark: 'Opposite High Street Phoenix & St. Regis Hotel',
+      coordinates: { lat: 18.9954, lng: 72.8252 },
+      mapUrl: 'https://maps.google.com/?q=Phoenix+Palladium+Mumbai',
+      parking: 'Grand multi-level parking for 3000+ vehicles with EV points',
+      transit: '10 min from Lower Parel Local Station & Monorail'
+    },
+    screens: [
+      { id: 'th5-s1', screenNumber: 1, name: 'Screen 1 (IMAX Laser GT)', type: 'IMAX Laser 3D', capacity: 420, sound: 'IMAX 12-Channel Sound', projection: 'Dual 4K Laser Commercial GT', features: ['Massive 70mm Equivalent Screen', 'Sub-Bass Transducers'] },
+      { id: 'th5-s2', screenNumber: 2, name: 'Screen 2 (Dolby Cinema)', type: 'Dolby Cinema', capacity: 310, sound: 'Dolby Atmos 128-Channel', projection: 'Dolby Vision 4K', features: ['Infinity Black Contrast', 'Acoustic Transparency'] },
+      { id: 'th5-s3', screenNumber: 3, name: 'Screen 3 (4DX Dynamic)', type: '4DX 3D', capacity: 180, sound: 'JBL 7.1', projection: 'Barco 4K', features: ['Motion Synchronized Seats', 'Weather Effects'] },
+      { id: 'th5-s4', screenNumber: 4, name: 'Screen 4 (Club Premiere)', type: 'Premiere 2D', capacity: 220, sound: 'Dolby 7.1', projection: 'Christie Laser', features: ['Extra Wide Recliners', 'Dedicated Food Service'] },
+      { id: 'th5-s5', screenNumber: 5, name: 'Screen 5 (Classic)', type: 'Standard 2D', capacity: 200, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Tiered Stadium Seating', 'Quick Exit Gates'] },
+      { id: 'th5-s6', screenNumber: 6, name: 'Screen 6 (Gold Lounge)', type: 'Gold Class', capacity: 95, sound: 'THX Spatial', projection: 'Barco 4K', features: ['Full Power Recliners', 'Complimentary Popcorn'] },
+      { id: 'th5-s7', screenNumber: 7, name: 'Screen 7 (Sensory Atmos)', type: 'Dolby Atmos', capacity: 180, sound: 'Dolby Atmos', projection: 'Christie 4K', features: ['Vibrating Seats', 'Dynamic Lighting'] }
+    ],
+    availableShows: [
+      { id: 'th5-sh1', time: '10:00 AM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (IMAX Laser GT)', format: 'IMAX 3D', price: 450, language: 'English', status: 'Filling Fast' },
+      { id: 'th5-sh2', time: '1:30 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Dolby Cinema)', format: 'Dolby Atmos', price: 380, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th5-sh3', time: '5:00 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (IMAX Laser GT)', format: 'IMAX 3D', price: 480, language: 'English', status: 'Filling Fast' },
+      { id: 'th5-sh4', time: '8:30 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (IMAX Laser GT)', format: 'IMAX 3D', price: 460, language: 'English', status: 'Almost Full' }
+    ]
   },
   {
     id: 'th-6',
-    name: 'VS Cinemas City Center - Heritage Plaza',
-    location: 'Brigade Road Junction',
+    name: 'VS Cinemas Laser Plex - Ambience Horizon',
+    location: 'NH-8, Ambience Island, Gurugram',
+    address: 'Ambience Mall, NH-8, Ambience Island, Gurugram',
+    city: 'Delhi NCR',
+    screensCount: 6,
+    dailyShows: 24,
+    soundSystem: 'Dolby Atmos & Meyer Sound EXP',
+    facilities: ['IMAX Laser 3D', '4DX Motion', 'Platinum Recliners', 'Café Express', 'Wheelchair Access', 'Valet Parking'],
+    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80',
+    rating: 4.8,
+    reviewsCount: 1720,
+    contact: {
+      phone: '+91 124 466 7788',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'ambience.del@vscinemas.com',
+      boxOfficeHours: '9:30 AM - 11:30 PM Daily',
+      manager: 'Amanpreet Singh (Operations Manager)'
+    },
+    locationDetails: {
+      address: 'Ambience Mall, NH-8, Ambience Island, Gurugram',
+      city: 'Delhi NCR',
+      landmark: 'Next to The Leela Hotel & Cyber City Toll Gate',
+      coordinates: { lat: 28.5042, lng: 77.0965 },
+      mapUrl: 'https://maps.google.com/?q=Ambience+Mall+Gurugram',
+      parking: 'Direct access to P3 and P4 parking with 4000+ slots',
+      transit: 'Moulsari Avenue Rapid Metro Station (5 min walk)'
+    },
+    screens: [
+      { id: 'th6-s1', screenNumber: 1, name: 'Screen 1 (IMAX Laser)', type: 'IMAX Laser 3D', capacity: 360, sound: 'Meyer Sound EXP & IMAX', projection: 'Dual 4K Laser', features: ['Massive Floor-to-Ceiling Screen', 'Plush VIP Seats'] },
+      { id: 'th6-s2', screenNumber: 2, name: 'Screen 2 (Dolby Atmos Cinema)', type: 'Dolby Atmos', capacity: 280, sound: 'Dolby Atmos 64-Channel', projection: 'Barco 4K Laser', features: ['Acoustic Clarity', 'Motorized Footrests'] },
+      { id: 'th6-s3', screenNumber: 3, name: 'Screen 3 (4DX Dynamic)', type: '4DX 3D', capacity: 160, sound: 'JBL 7.1', projection: 'Christie Laser', features: ['Motion Dynamic Seats', 'Wind, Scent & Bubble Effects'] },
+      { id: 'th6-s4', screenNumber: 4, name: 'Screen 4 (Platinum Lounge)', type: 'Platinum VIP', capacity: 110, sound: 'THX Certified', projection: 'Barco 4K', features: ['Full Power Recliners', 'In-Seat Dining'] },
+      { id: 'th6-s5', screenNumber: 5, name: 'Screen 5 (Classic)', type: 'Standard 2D', capacity: 210, sound: 'Dolby 7.1', projection: 'Sony 4K', features: ['Tiered Stadium Seating', 'Ergonomic Support'] },
+      { id: 'th6-s6', screenNumber: 6, name: 'Screen 6 (Club)', type: 'Standard 2D', capacity: 180, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Family Friendly Layout', 'Spacious Legroom'] }
+    ],
+    availableShows: [
+      { id: 'th6-sh1', time: '10:30 AM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 380, language: 'English', status: 'Available' },
+      { id: 'th6-sh2', time: '2:00 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 420, language: 'English', status: 'Filling Fast' },
+      { id: 'th6-sh3', time: '5:45 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Dolby Atmos Cinema)', format: 'Dolby Atmos', price: 340, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th6-sh4', time: '9:15 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 440, language: 'English', status: 'Filling Fast' }
+    ]
+  },
+  {
+    id: 'th-7',
+    name: 'VS Cinemas Heritage - Connaught Circle',
+    location: 'Inner Circle, Connaught Place',
+    address: 'Block E, Inner Circle, Connaught Place, Central Delhi',
+    city: 'Delhi NCR',
     screensCount: 4,
     dailyShows: 16,
-    soundSystem: 'JBL Professional Sound',
-    facilities: ['Historic Auditorium', 'Snack Bar', 'Express Kiosk']
+    soundSystem: 'JBL Professional Sound & Dolby 7.1',
+    facilities: ['Heritage Architecture', 'Art Deco Lounge', 'Dolby Atmos', 'Café Deli', 'Valet Desk'],
+    image: 'https://images.unsplash.com/photo-1543536448-d209d2d13a1c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.7,
+    reviewsCount: 1410,
+    contact: {
+      phone: '+91 11 2341 5566',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'heritage.del@vscinemas.com',
+      boxOfficeHours: '9:30 AM - 11:15 PM Daily',
+      manager: 'Deepak Sharma (Heritage Operations)'
+    },
+    locationDetails: {
+      address: 'Block E, Inner Circle, Connaught Place, Central Delhi',
+      city: 'Delhi NCR',
+      landmark: 'Near Rajiv Chowk Metro Gate 5 & Central Park',
+      coordinates: { lat: 28.6315, lng: 77.2167 },
+      mapUrl: 'https://maps.google.com/?q=Connaught+Place+Delhi',
+      parking: 'NDMC underground multi-level parking at Shivaji Stadium & Palika',
+      transit: '100 meters from Rajiv Chowk Metro Hub (Blue & Yellow Lines)'
+    },
+    screens: [
+      { id: 'th7-s1', screenNumber: 1, name: 'Screen 1 (The Heritage Grand)', type: 'Dolby Atmos', capacity: 320, sound: 'Dolby Atmos 64-Channel', projection: 'Christie Laser 4K', features: ['Art Deco Grand Ceiling', 'Plush High-Back Seating'] },
+      { id: 'th7-s2', screenNumber: 2, name: 'Screen 2 (Regal Cinema)', type: 'Dolby 7.1', capacity: 240, sound: 'JBL Professional', projection: 'Barco 4K', features: ['Acoustic Silk Drapery', 'Wide Row Spacing'] },
+      { id: 'th7-s3', screenNumber: 3, name: 'Screen 3 (Director’s Lounge)', type: 'VIP Gold', capacity: 90, sound: 'THX Spatial', projection: 'Sony 4K', features: ['Electronic Recliners', 'Private Butler Service'] },
+      { id: 'th7-s4', screenNumber: 4, name: 'Screen 4 (Classic 2D)', type: 'Standard 2D', capacity: 180, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Comfort Foam Seats', 'Fast Booking Kiosks'] }
+    ],
+    availableShows: [
+      { id: 'th7-sh1', time: '11:15 AM', movieTitle: 'Interstellar', screen: 'Screen 1 (The Heritage Grand)', format: 'Dolby Atmos', price: 290, language: 'English', status: 'Available' },
+      { id: 'th7-sh2', time: '2:45 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (The Heritage Grand)', format: 'Dolby Atmos', price: 340, language: 'English', status: 'Filling Fast' },
+      { id: 'th7-sh3', time: '6:30 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Regal Cinema)', format: 'Dolby 7.1', price: 310, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th7-sh4', time: '9:45 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (The Heritage Grand)', format: 'Dolby Atmos', price: 350, language: 'English', status: 'Available' }
+    ]
+  },
+  {
+    id: 'th-8',
+    name: 'VS Cinemas Dolby Vision - Marina Waves',
+    location: 'Anna Salai & Express Avenue, Royapettah',
+    address: 'Express Avenue Mall, 49/50 Whites Road, Royapettah',
+    city: 'Chennai',
+    screensCount: 5,
+    dailyShows: 20,
+    soundSystem: 'Dolby Atmos 128 Channel & QSC Quantum',
+    facilities: ['Dolby Cinema', 'IMAX Laser 3D', 'Gold Class Recliners', 'South Indian Gourmet Kitchen', 'Valet Parking'],
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 1980,
+    contact: {
+      phone: '+91 44 2846 3311',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'marinawaves.chn@vscinemas.com',
+      boxOfficeHours: '9:00 AM - 11:45 PM Daily',
+      manager: 'Karthik Subramanian (Regional Lead)'
+    },
+    locationDetails: {
+      address: 'Express Avenue Mall, 49/50 Whites Road, Royapettah',
+      city: 'Chennai',
+      landmark: 'Near Thousand Lights Mosque & Spencer Plaza',
+      coordinates: { lat: 13.0583, lng: 78.0261 },
+      mapUrl: 'https://maps.google.com/?q=Express+Avenue+Chennai',
+      parking: 'Extensive 3-tier underground parking with digital space indicators',
+      transit: 'Thousand Lights Metro Station (Blue Line) - 300m away'
+    },
+    screens: [
+      { id: 'th8-s1', screenNumber: 1, name: 'Screen 1 (IMAX Laser)', type: 'IMAX Laser 3D', capacity: 370, sound: 'Dolby Atmos 128-Channel', projection: 'Dual 4K Laser RealDepth', features: ['Massive Curvature Screen', 'VIP Leather Seats'] },
+      { id: 'th8-s2', screenNumber: 2, name: 'Screen 2 (Dolby Vision Cinema)', type: 'Dolby Cinema', capacity: 290, sound: 'Dolby Atmos Surround', projection: 'Dolby Vision Dual 4K', features: ['HDR 1000 Nits Brightness', 'Gliding Recliners'] },
+      { id: 'th8-s3', screenNumber: 3, name: 'Screen 3 (4DX Dynamic)', type: '4DX 3D', capacity: 160, sound: 'JBL 7.1', projection: 'Barco 4K', features: ['Hydraulic Motion Seats', 'Environmental FX'] },
+      { id: 'th8-s4', screenNumber: 4, name: 'Screen 4 (Gold Class Luxe)', type: 'Gold Class', capacity: 95, sound: 'THX Spatial', projection: 'Christie Laser', features: ['Electronic Full Flat Recliners', 'Live Food Order Service'] },
+      { id: 'th8-s5', screenNumber: 5, name: 'Screen 5 (Classic)', type: 'Standard 2D', capacity: 210, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Stadium Row Clearance', 'Acoustic Wall Panels'] }
+    ],
+    availableShows: [
+      { id: 'th8-sh1', time: '10:30 AM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 360, language: 'Tamil', status: 'Filling Fast' },
+      { id: 'th8-sh2', time: '2:00 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 2 (Dolby Vision Cinema)', format: 'Dolby Vision', price: 340, language: 'English', status: 'Available' },
+      { id: 'th8-sh3', time: '5:45 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 380, language: 'English', status: 'Almost Full' },
+      { id: 'th8-sh4', time: '9:15 PM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (IMAX Laser)', format: 'IMAX 3D', price: 400, language: 'English', status: 'Filling Fast' }
+    ]
+  },
+  {
+    id: 'th-9',
+    name: 'VS Cinemas SuperPlex - Hitec City Boulevard',
+    location: 'Cyberabad IT Corridor, Hitec City',
+    address: 'Inorbit Mall, Mindspace IT Park, Hitec City, Madhapur',
+    city: 'Hyderabad',
+    screensCount: 6,
+    dailyShows: 24,
+    soundSystem: 'Dolby Atmos & Christie Vive Audio',
+    facilities: ['IMAX Laser 3D', 'Dolby Atmos', '4DX Motion', 'Hyderabadi Delicacies Lounge', 'Valet Parking', 'Wheelchair Access'],
+    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 2240,
+    contact: {
+      phone: '+91 40 4788 6622',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'hiteccity.hyd@vscinemas.com',
+      boxOfficeHours: '9:00 AM - Midnight Daily',
+      manager: 'Venkat Rao (Operations General Manager)'
+    },
+    locationDetails: {
+      address: 'Inorbit Mall, Mindspace IT Park, Hitec City, Madhapur',
+      city: 'Hyderabad',
+      landmark: 'Overlooking Durgam Cheruvu Lake & Mindspace Gate 2',
+      coordinates: { lat: 17.4348, lng: 78.3846 },
+      mapUrl: 'https://maps.google.com/?q=Inorbit+Mall+Hitec+City+Hyderabad',
+      parking: 'Basement and open valet bays for 2500+ vehicles with charging slots',
+      transit: 'Direct connectivity to Hitec City Metro Station (Blue Line)'
+    },
+    screens: [
+      { id: 'th9-s1', screenNumber: 1, name: 'Screen 1 (IMAX Laser 3D)', type: 'IMAX Laser 3D', capacity: 390, sound: 'Dolby Atmos 128-Channel', projection: 'Dual 4K Laser RealDepth', features: ['Colossal Screen Area', 'Custom Ergonomic Recliners'] },
+      { id: 'th9-s2', screenNumber: 2, name: 'Screen 2 (Christie Vive Atmos)', type: 'Dolby Atmos', capacity: 300, sound: 'Christie Vive Ribbon Drivers', projection: 'Barco 4K Laser', features: ['Ribbon Driver Audio Purity', 'Wide Seat Pitch'] },
+      { id: 'th9-s3', screenNumber: 3, name: 'Screen 3 (4DX Dynamic)', type: '4DX 3D', capacity: 160, sound: 'JBL 7.1', projection: 'Christie Laser', features: ['Motion Tilt Seats', 'Water, Rain & Snow FX'] },
+      { id: 'th9-s4', screenNumber: 4, name: 'Screen 4 (Gold Class)', type: 'Gold Class', capacity: 100, sound: 'THX Spatial', projection: 'Sony 4K', features: ['Motorized Recliners', 'Dedicated Butler Call Button'] },
+      { id: 'th9-s5', screenNumber: 5, name: 'Screen 5 (Classic 2D)', type: 'Standard 2D', capacity: 220, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Plush Velvet Cushions', 'Fast Turnstiles'] },
+      { id: 'th9-s6', screenNumber: 6, name: 'Screen 6 (Club)', type: 'Standard 2D', capacity: 190, sound: 'Dolby 7.1', projection: 'Barco 2K', features: ['Generous Legroom', 'Snack Console'] }
+    ],
+    availableShows: [
+      { id: 'th9-sh1', time: '10:00 AM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 380, language: 'Telugu', status: 'Filling Fast' },
+      { id: 'th9-sh2', time: '1:45 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 420, language: 'English', status: 'Available' },
+      { id: 'th9-sh3', time: '5:30 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 2 (Christie Vive Atmos)', format: 'Dolby Atmos', price: 340, language: 'Telugu', status: 'Almost Full' },
+      { id: 'th9-sh4', time: '8:45 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 1 (IMAX Laser 3D)', format: 'IMAX 3D', price: 400, language: 'English', status: 'Filling Fast' }
+    ]
+  },
+  {
+    id: 'th-10',
+    name: 'VS Cinemas Waterfront - Marine Drive Galleria',
+    location: 'Marine Drive Waterfront Promenade',
+    address: 'LuLu International Mall & Waterfront, Edappally / Marine Drive',
+    city: 'Kochi',
+    screensCount: 5,
+    dailyShows: 20,
+    soundSystem: 'Barco 4K Laser & Dolby Atmos 64-Channel',
+    facilities: ['Dolby Atmos', '4DX Sensory', 'Waterfront Dining Lounge', 'VIP Loungers', 'Wheelchair Access', 'Valet Parking'],
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&auto=format&fit=crop&q=80',
+    rating: 4.8,
+    reviewsCount: 1380,
+    contact: {
+      phone: '+91 484 272 1199',
+      helpline: '1800-425-9999 (Toll Free)',
+      email: 'waterfront.koc@vscinemas.com',
+      boxOfficeHours: '9:30 AM - 11:30 PM Daily',
+      manager: 'Mathew Varghese (Station Operations)'
+    },
+    locationDetails: {
+      address: 'LuLu International Mall & Waterfront, Edappally / Marine Drive',
+      city: 'Kochi',
+      landmark: 'Near Edappally Junction & Rainbow Hanging Bridge',
+      coordinates: { lat: 10.0236, lng: 76.3116 },
+      mapUrl: 'https://maps.google.com/?q=LuLu+Mall+Kochi',
+      parking: 'Multi-deck car park with 3500+ bays and dedicated two-wheeler floor',
+      transit: 'Direct pedestrian bridge from Edappally Kochi Metro Station'
+    },
+    screens: [
+      { id: 'th10-s1', screenNumber: 1, name: 'Screen 1 (Dolby Atmos Grand)', type: 'Dolby Atmos', capacity: 330, sound: 'Dolby Atmos 64-Channel', projection: 'Barco 4K Laser', features: ['Deep Bass Subwoofers', 'VIP Glider Recliners'] },
+      { id: 'th10-s2', screenNumber: 2, name: 'Screen 2 (4DX Motion)', type: '4DX 3D', capacity: 160, sound: 'JBL 7.1', projection: 'Christie Laser', features: ['Synchronized Motion Seats', 'Ocean Breeze & Fog FX'] },
+      { id: 'th10-s3', screenNumber: 3, name: 'Screen 3 (Gold Class)', type: 'Gold Class', capacity: 90, sound: 'THX Spatial', projection: 'Barco Laser', features: ['Full Flat Recliners', 'Local Kerala Delicacy Service'] },
+      { id: 'th10-s4', screenNumber: 4, name: 'Screen 4 (Classic 2D)', type: 'Standard 2D', capacity: 210, sound: 'Dolby 7.1', projection: 'NEC 2K', features: ['Wide Seating Pitch', 'Snack Trays'] },
+      { id: 'th10-s5', screenNumber: 5, name: 'Screen 5 (Classic 2D)', type: 'Standard 2D', capacity: 180, sound: 'Dolby 7.1', projection: 'Sony 4K', features: ['Stadium Raking', 'Quick Aisles'] }
+    ],
+    availableShows: [
+      { id: 'th10-sh1', time: '10:15 AM', movieTitle: 'Avatar: The Way of Water', screen: 'Screen 1 (Dolby Atmos Grand)', format: 'Dolby Atmos', price: 320, language: 'English', status: 'Available' },
+      { id: 'th10-sh2', time: '1:45 PM', movieTitle: 'Kalki 2898 AD', screen: 'Screen 1 (Dolby Atmos Grand)', format: 'Dolby Atmos', price: 340, language: 'Malayalam', status: 'Filling Fast' },
+      { id: 'th10-sh3', time: '5:30 PM', movieTitle: 'Spider-Man: Beyond the Spider-Verse', screen: 'Screen 2 (4DX Motion)', format: '4DX 3D', price: 380, language: 'English', status: 'Almost Full' },
+      { id: 'th10-sh4', time: '8:45 PM', movieTitle: 'Dune: Part Two', screen: 'Screen 1 (Dolby Atmos Grand)', format: 'Dolby Atmos', price: 350, language: 'English', status: 'Filling Fast' }
+    ]
   }
 ]
+
+// Distinct City Filter Options
+export const THEATRE_CITIES = ['All Cities', 'Bengaluru', 'Mumbai', 'Delhi NCR', 'Chennai', 'Hyderabad', 'Kochi']
+
+// Module 4: Theatre Listing & Discovery Service Engine
+export const theatreService = {
+  async getTheatresList({ city = '', search = '', page = 1, limit = 6 } = {}) {
+    let filtered = [...THEATRES_LIST]
+
+    // City Filter
+    if (city && city.trim() !== '' && city.toLowerCase() !== 'all cities') {
+      filtered = filtered.filter(
+        (t) => t.city.toLowerCase() === city.toLowerCase()
+      )
+    }
+
+    // Search Query Filter
+    if (search && search.trim() !== '') {
+      const q = search.toLowerCase().trim()
+      filtered = filtered.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.address.toLowerCase().includes(q) ||
+          t.city.toLowerCase().includes(q) ||
+          t.location.toLowerCase().includes(q) ||
+          (t.facilities && t.facilities.some((f) => f.toLowerCase().includes(q))) ||
+          (t.screens && t.screens.some((s) => s.type.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))) ||
+          (t.availableShows && t.availableShows.some((sh) => sh.movieTitle.toLowerCase().includes(q)))
+      )
+    }
+
+    const totalResults = filtered.length
+    const totalPages = Math.max(1, Math.ceil(totalResults / limit))
+    const safePage = Math.min(Math.max(1, page), totalPages)
+    const startIndex = (safePage - 1) * limit
+    const paginated = filtered.slice(startIndex, startIndex + limit)
+
+    return {
+      theatres: paginated,
+      totalResults,
+      totalPages,
+      currentPage: safePage,
+      limit,
+      cities: THEATRE_CITIES
+    }
+  },
+
+  async getTheatreDetails(theatreId) {
+    const found = THEATRES_LIST.find((t) => String(t.id) === String(theatreId))
+    if (!found) {
+      throw new Error(`Theatre with ID "${theatreId}" could not be found.`)
+    }
+    return found
+  },
+
+  getCities() {
+    return THEATRE_CITIES
+  }
+}
 
 // Revenue Summary Dummy Data in Indian Rupees (₹)
 export const REVENUE_DATA = {
