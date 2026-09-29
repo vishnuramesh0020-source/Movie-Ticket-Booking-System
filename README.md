@@ -1,21 +1,53 @@
 # VS Cinemas - Movie Ticket Booking System & Analytics Dashboard
 
-A modern, high-performance cinema ticketing management web application built with React 19, Vite, Tailwind CSS v4, and third-party movie APIs.
+A modern, high-performance cinema ticketing management and movie catalog web application built with React 19, Vite, Tailwind CSS v4, and third-party movie APIs (The Movie Database - TMDB & TVMaze).
 
-## 🚀 Key Features
+## 🚀 Key Modules & Features
 
-- **Projector & Cinema Auth**: Vintage movie projector visual theme for Login, Registration, and Password Reset.
-- **Executive Analytics Dashboard**:
-  - **5 Responsive Metric Cards**: Total Movies, Total Theatres, Total Bookings, Available Shows, and Today's Bookings with segmented indicators and percentage trends.
-  - **Live Cinema Catalog**: Filter by *Now Playing* and *Upcoming* releases powered by TMDB and TVMaze third-party APIs.
-  - **Interactive Ticket Booking Engine**: Modal-based real-time seat selector, screening format picker, and instant calculation in Indian Rupees (₹).
-  - **Digital Cinema E-Ticket**: Instant booking pass generation with QR code, auditorium details, and direct print functionality.
-  - **Interactive Revenue & Profit Analytics**:
-    - Dual-pillar monthly bar comparison chart (IMAX vs Dolby Cinema) with quarter filters (All, Q1, Q2) and tooltip inspection.
-    - Smooth cubic bezier profit vs occupancy spline chart with interactive data points.
-    - Screen format sales share breakdown with live distribution bars.
-  - **Multiplex Theatre Network**: Real-time listing of auditorium formats, sound systems, daily show schedules, and amenities.
-  - **Recent Bookings Feed**: Complete transaction registry with customer details, seat assignments, and confirmed status.
+### 🎬 Module 3: Movie Listing & Explorer (TMDB Integrated)
+- **Third-Party API Integration**: Live movie data synchronized directly with The Movie Database (TMDB) API with fallback resiliency.
+- **Dedicated Movie Listing Page (`/movies`)**: Full-width catalog with real-time filters and search.
+- **Each Movie Displays All 9 Required Attributes**:
+  1. **Poster**: High-definition poster with format tag (IMAX 3D, Dolby Cinema) and hover zoom.
+  2. **Movie Name**: Bold title linking directly to the Movie Detail Page.
+  3. **Genre**: Genre category pills (Action, Sci-Fi, Drama, etc.).
+  4. **Language**: Visible language tag with icon (English, Hindi, Tamil, Telugu, Spanish, etc.).
+  5. **Duration**: Runtime badge with clock icon (e.g. `2h 25m`).
+  6. **Rating**: Vibrant gold star rating pill (e.g. `★ 7.9/10`).
+  7. **Release Date**: Formatted theatrical debut date (e.g. `Jul 29, 2026`).
+  8. **Description**: Concise storyline synopsis.
+  9. **Trailer Button (UI Only)**: Dedicated trailer button that launches the high-definition Theatrical Trailer modal player.
+- **Dedicated Movie Detail Page (`/movies/:id`)**:
+  - High-resolution cinematic hero banner with backdrop image and vignette effects.
+  - Comprehensive metadata: Title, Tagline, Rating, Vote Count, Runtime, Release Date, Language, Spoken Languages, Director, Budget, and Revenue.
+  - Top Billed Cast gallery with actor photos and character names.
+  - Multiplex theatre venue selection and live showtime booking buttons.
+- **Search Movies**: Real-time debounced search bar with instant clear button.
+- **Filter by Genre**: Dropdown supporting all TMDB genres (Action, Adventure, Animation, Comedy, Crime, Drama, Fantasy, Horror, Mystery, Romance, Sci-Fi, Thriller).
+- **Filter by Language**: Dropdown supporting English, Hindi, Tamil, Telugu, Malayalam, Spanish, French, Japanese, Korean, German.
+- **Filter by Rating**: Filter options for 8.0+ Blockbusters, 7.0+ Highly Rated, 6.0+ Good, and 5.0+ Average.
+- **Sort by Release Date**: Multi-dimensional sorting: Newest First, Oldest First, Rating (High to Low), Popularity, Title (A-Z).
+- **Pagination**: Complete page navigation bar with Previous, Next, page numbers, and total movie counter.
+- **Loading & Error Handling**:
+  - Animated shimmer skeleton cards during API fetches.
+  - API Connectivity Notice banner with instant "Retry" action.
+  - Empty search/filter state with "Reset Filters" action.
+
+### 📊 Module 2: Executive Analytics Dashboard
+- **5 Responsive Metric Cards**: Total Movies, Total Theatres, Total Bookings, Available Shows, and Today's Bookings.
+- **Revenue & Profit Analytics**:
+  - Dual-pillar monthly bar comparison chart (IMAX vs Dolby Cinema) with quarter filters (All, Q1, Q2) and tooltip inspection.
+  - Smooth cubic bezier profit vs occupancy spline chart with interactive data points.
+  - Screen format sales share breakdown with live distribution bars.
+- **Interactive Ticket Booking Engine**: Modal-based real-time seat selector (Rows A-E, Seats 1-8) and instant price calculation in Indian Rupees (₹).
+- **Digital Cinema E-Ticket**: Instant booking pass generation with QR code, auditorium details, and direct print functionality (`window.print()`).
+- **Multiplex Theatre Network**: Real-time listing of auditorium formats, sound systems, daily show schedules, and amenities.
+- **Recent Bookings Feed**: Complete transaction registry with customer details, seat assignments, and confirmed status.
+
+### 🔐 Module 1: Authentication & Layout
+- **Vintage Projector Aesthetic**: Authentic yellow projector beam layout with responsive floating forms.
+- **Full Auth Flow**: Login with 1-click Demo Auto-Fill, Sign Up with password confirmation validation, and Password Reset.
+- **Route Protection**: Protected application routes with session persistence in `localStorage`.
 
 ## 🛠️ Tech Stack
 

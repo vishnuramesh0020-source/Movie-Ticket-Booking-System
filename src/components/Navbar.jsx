@@ -1,62 +1,115 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Bell, Search } from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { LogOut, Bell, Search, LayoutDashboard, Film } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
 export default function Navbar({ searchQuery = '', onSearchChange }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
+  const isDashboard = location.pathname === '/dashboard'
+  const isMovies = location.pathname.startsWith('/movies')
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && !isMovies && searchQuery.trim()) {
+      navigate('/movies')
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 text-slate-800 shadow-xs">
-      <div className="w-full px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-3 sm:gap-6">
-        {/* Left: Brand & Dashboard title */}
-        <div className="flex items-center gap-5 shrink-0">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <Logo className="h-6 w-auto" />
+      <div className="w-full px-3 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-6">
+        {/* Left: Brand & Navigation Links */}
+        <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+          <Link to="/dashboard" className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Logo className="h-5 sm:h-6 w-auto" />
           </Link>
-          <span className="hidden sm:inline text-xl font-extrabold text-slate-900 tracking-tight">
-            Dashboard
-          </span>
+
+          {/* Navigation Tabs (Desktop) */}
+          <nav className="hidden sm:flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+            <Link
+              to="/dashboard"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isDashboard
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
+
+            <Link
+              to="/movies"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isMovies
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Film className="w-3.5 h-3.5" />
+              <span>Movies</span>
+            </Link>
+          </nav>
         </div>
 
-        {/* Center: Search pill matching the reference image */}
-        <div className="flex-1 max-w-md mx-2 sm:mx-4">
+        {/* Center: Search pill with min-w-0 for flex shrinking */}
+        <div className="flex-1 min-w-0 max-w-md mx-1 sm:mx-4">
           <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              placeholder="Search...."
-              className="w-full bg-[#f8fafc] hover:bg-slate-100/60 focus:bg-white border border-slate-200/90 rounded-full pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
+              onKeyDown={handleSearchSubmit}
+              placeholder="Search movies..."
+              className="w-full bg-[#f8fafc] hover:bg-slate-100/60 focus:bg-white border border-slate-200/90 rounded-full pl-8 sm:pl-9 pr-3 sm:pr-4 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
             />
           </div>
         </div>
 
         {/* Right: Notifications & User profile pill */}
-        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-          {/* Notification Bell matching image */}
+        <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+          {/* Mobile Quick Switcher */}
+          <div className="sm:hidden flex items-center gap-0.5 bg-slate-100/80 p-0.5 rounded-lg border border-slate-200/70">
+            <Link
+              to="/dashboard"
+              className={`p-1.5 rounded-md ${isDashboard ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+              title="Dashboard"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/movies"
+              className={`p-1.5 rounded-md ${isMovies ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+              title="Movies"
+            >
+              <Film className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Notification Bell (Hidden on small mobile screens to prevent cramming) */}
           <button
             type="button"
-            className="w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer shadow-2xs"
+            className="hidden sm:flex w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer shadow-2xs shrink-0"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
           </button>
 
-          {/* User Profile matching Alex Ragnarsson / Admin Store */}
-          <div className="flex items-center gap-2.5">
+          {/* User Profile */}
+          <div className="flex items-center gap-2 shrink-0">
             <img
               src={user?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"}
               alt={user?.name || "Alex Ragnarsson"}
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-100 shadow-2xs"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-slate-100 shadow-2xs shrink-0"
               onError={(e) => {
                 e.target.onerror = null
                 e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'Alex Ragnarsson')}`
@@ -75,7 +128,7 @@ export default function Navbar({ searchQuery = '', onSearchChange }) {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer shrink-0"
             title="Log out of session"
           >
             <LogOut className="w-3.5 h-3.5" />
