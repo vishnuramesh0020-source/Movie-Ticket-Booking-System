@@ -67,6 +67,7 @@ export default function TrailerModal({ isOpen, onClose, movie, onBook }) {
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
             title={`${movie.title} Trailer`}
+            sandbox="allow-scripts allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="w-full h-full border-0"

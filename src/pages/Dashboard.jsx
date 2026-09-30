@@ -149,19 +149,24 @@ export default function Dashboard() {
 
   // Confirm booking
   const handleConfirmBooking = async (payload) => {
-    const bookingPayload = {
-      ...payload,
-      userEmail: user?.email || 'guest@vscinemas.com',
-      userName: user?.name || 'Valued Guest'
-    }
+    try {
+      const bookingPayload = {
+        ...payload,
+        userEmail: user?.email || 'guest@vscinemas.com',
+        userName: user?.name || 'Valued Guest'
+      }
 
-    const res = await movieService.bookTickets(bookingPayload)
-    if (res.success) {
-      toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
-      setBookings((prev) => [res.booking, ...prev])
-      setIsBookingOpen(false)
-      setActiveTicket(res.booking)
-      setIsTicketOpen(true)
+      const res = await movieService.bookTickets(bookingPayload)
+      if (res.success) {
+        toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
+        setBookings((prev) => [res.booking, ...prev])
+        setIsBookingOpen(false)
+        setActiveTicket(res.booking)
+        setIsTicketOpen(true)
+      }
+    } catch (err) {
+      console.error('Booking failed:', err)
+      toast.error(err.message || 'Booking transaction failed. Please retry.')
     }
   }
 

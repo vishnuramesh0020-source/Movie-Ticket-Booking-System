@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Armchair } from 'lucide-react'
+import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Ticket } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
@@ -17,7 +17,11 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
   const isDashboard = location.pathname === '/dashboard'
   const isMovies = location.pathname.startsWith('/movies')
   const isTheatres = location.pathname.startsWith('/theatres')
-  const isSeats = location.pathname.startsWith('/seat-selection') || location.pathname.startsWith('/seats')
+  const isSeats =
+    location.pathname.startsWith('/seat-selection') ||
+    location.pathname.startsWith('/seats') ||
+    location.pathname.startsWith('/booking') ||
+    location.pathname.startsWith('/book')
 
   const handleSearchSubmit = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -75,15 +79,15 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
             </Link>
 
             <Link
-              to="/seat-selection"
+              to="/booking"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 isSeats
                   ? 'bg-white text-blue-600 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
-              <Armchair className="w-3.5 h-3.5" />
-              <span>Seats</span>
+              <Ticket className="w-3.5 h-3.5" />
+              <span>Book Tickets</span>
             </Link>
           </nav>
         </div>
@@ -129,11 +133,11 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
               <Building2 className="w-3.5 h-3.5" />
             </Link>
             <Link
-              to="/seat-selection"
+              to="/booking"
               className={`p-1.5 rounded-md ${isSeats ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
-              title="Seat Selection"
+              title="Book Tickets"
             >
-              <Armchair className="w-3.5 h-3.5" />
+              <Ticket className="w-3.5 h-3.5" />
             </Link>
           </div>
 

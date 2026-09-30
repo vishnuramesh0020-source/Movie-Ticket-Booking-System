@@ -16,7 +16,9 @@ import {
   ShieldCheck,
   CreditCard,
   Info,
-  Film
+  Film,
+  Search,
+  Check
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Navbar from '../components/Navbar'
@@ -93,6 +95,10 @@ export default function SeatSelection() {
   const [activeTicket, setActiveTicket] = useState(null)
   const [isTicketOpen, setIsTicketOpen] = useState(false)
 
+  // Module 6: Movie & Cinema Selection Modals
+  const [isMovieModalOpen, setIsMovieModalOpen] = useState(false)
+  const [isTheatreModalOpen, setIsTheatreModalOpen] = useState(false)
+
   // Fetch Movie Details & Catalog
   useEffect(() => {
     let ignore = false
@@ -101,14 +107,34 @@ export default function SeatSelection() {
       setIsLoading(true)
       setError(null)
       try {
-        const [catalog, details] = await Promise.all([
-          movieService.getNowPlaying(),
-          movieService.getMovieDetails(movieId || 969681)
-        ])
+        const catalog = await movieService.getNowPlaying()
+        if (ignore) return
 
-        if (!ignore) {
-          setAllMovies(catalog)
+        // If movieId is provided in route params, use it; otherwise default to the FIRST movie in the active catalog list
+        let chosenId = null
+        if (movieId) {
+          chosenId = movieId
+        } else if (catalog && catalog.length > 0) {
+          chosenId = catalog[0].id
+        }
+
+        let details = null
+        if (chosenId) {
+          try {
+            details = await movieService.getMovieDetails(chosenId)
+          } catch {
+            details = catalog.find((m) => String(m.id) === String(chosenId)) || catalog[0]
+          }
+        }
+
+        if (!ignore && details) {
+          // Ensure selected movie is always in the allMovies list for dropdown and picker modal
+          const isInCatalog = catalog.some((m) => String(m.id) === String(details.id))
+          const fullCatalog = isInCatalog ? catalog : [details, ...catalog]
+
+          setAllMovies(fullCatalog)
           setMovie(details)
+
           // Set showtime from params or movie default
           const timeParam = searchParams.get('time')
           if (timeParam) {
@@ -135,12 +161,17 @@ export default function SeatSelection() {
     }
   }, [movieId, searchParams])
 
-  // Occupied / Booked Seats computed dynamically without cascading render
+  // Occupied / Booked Seats computed dynamically scoped to exact movie, showtime, date, and theatre
   const bookedSeats = useMemo(() => {
     if (!movie) return INITIAL_BOOKED_SEATS
-    const fromService = movieService.getBookedSeats(movie.title, selectedShowtime)
+    const fromService = movieService.getBookedSeats(
+      movie.title,
+      selectedShowtime,
+      selectedDate.label,
+      selectedTheatre?.id
+    )
     return Array.from(new Set([...fromService, ...extraBookedSeats]))
-  }, [movie, selectedShowtime, extraBookedSeats])
+  }, [movie, selectedShowtime, selectedDate, selectedTheatre, extraBookedSeats])
 
   // Tier Pricing Dictionary: Executive (250), Premium (340), Platinum (640)
   const tierPricing = useMemo(() => {
@@ -169,6 +200,23 @@ export default function SeatSelection() {
   const handleShowtimeChange = (st) => {
     setSelectedShowtime(st)
     setSelectedSeats([])
+  }
+
+  // Movie Switcher Handler
+  const handleSelectMovie = (chosenMovie) => {
+    setMovie(chosenMovie)
+    setSelectedSeats([])
+    setIsMovieModalOpen(false)
+    navigate(`/booking/${chosenMovie.id}`, { replace: true })
+    toast.info(`Switched movie to "${chosenMovie.title}"`)
+  }
+
+  // Theatre Switcher Handler
+  const handleSelectTheatre = (theatreObj) => {
+    setSelectedTheatre(theatreObj)
+    setSelectedSeats([])
+    setIsTheatreModalOpen(false)
+    toast.info(`Cinema venue updated to ${theatreObj.name}`)
   }
 
   // Seat toggle handler
@@ -228,10 +276,28 @@ export default function SeatSelection() {
     return breakdown
   }, [selectedSeats])
 
-  // Confirm booking & generate E-ticket
+  // Confirm booking & generate E-ticket with strict DUPLICATE BOOKING PREVENTION
   const handleConfirmBooking = async () => {
     if (selectedSeats.length === 0) {
       toast.warning('Please select at least 1 seat to confirm your booking.')
+      return
+    }
+
+    // 1. Pre-flight duplicate check against fresh storage state
+    const currentOccupied = movieService.getBookedSeats(
+      movie.title,
+      selectedShowtime,
+      selectedDate.label,
+      selectedTheatre.id
+    )
+    const duplicateSeats = selectedSeats.filter((s) => currentOccupied.includes(s.id))
+    if (duplicateSeats.length > 0) {
+      toast.error(
+        `Duplicate Booking Prevented: Seat(s) ${duplicateSeats.map((s) => s.id).join(', ')} were just reserved by another patron. Please select alternative seats.`
+      )
+      // Unselect conflicted seats and mark them booked in local state
+      setSelectedSeats((prev) => prev.filter((s) => !currentOccupied.includes(s.id)))
+      setExtraBookedSeats((prev) => Array.from(new Set([...prev, ...duplicateSeats.map((s) => s.id)])))
       return
     }
 
@@ -275,7 +341,16 @@ export default function SeatSelection() {
       }
     } catch (err) {
       console.error('Booking failed:', err)
-      toast.error('Booking transaction could not be processed. Please retry.')
+      toast.error(err.message || 'Booking transaction could not be processed. Please retry.')
+      if (movie) {
+        const freshBooked = movieService.getBookedSeats(
+          movie.title,
+          selectedShowtime,
+          selectedDate.label,
+          selectedTheatre.id
+        )
+        setExtraBookedSeats((prev) => Array.from(new Set([...prev, ...freshBooked])))
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -289,6 +364,15 @@ export default function SeatSelection() {
     '7:45 PM',
     '10:30 PM'
   ]
+
+  // Showtime Status Mapping for Real-time capacity awareness
+  const showtimeStatuses = {
+    '10:15 AM': { status: 'Available', color: 'emerald' },
+    '1:45 PM': { status: 'Filling Fast', color: 'amber' },
+    '4:30 PM': { status: 'Almost Full', color: 'rose' },
+    '7:45 PM': { status: 'Filling Fast', color: 'amber' },
+    '10:30 PM': { status: 'Available', color: 'emerald' }
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans select-none antialiased">
@@ -307,16 +391,28 @@ export default function SeatSelection() {
             <span>Back</span>
           </button>
 
-          {/* Quick Movie Switcher */}
+          {/* Quick Movie Switcher & Change Movie Action */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 hidden sm:inline-flex items-center gap-1">
-              <Film className="w-3.5 h-3.5 text-blue-600" />
-              <span>Select Movie:</span>
-            </span>
+            <button
+              type="button"
+              onClick={() => setIsMovieModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+            >
+              <Film className="w-3.5 h-3.5" />
+              <span>Change Movie</span>
+            </button>
+
             <select
               value={movie?.id || ''}
-              onChange={(e) => navigate(`/seat-selection/${e.target.value}`)}
-              className="bg-white border border-slate-200 text-xs font-bold text-slate-800 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              onChange={(e) => {
+                const found = allMovies.find((m) => String(m.id) === String(e.target.value))
+                if (found) {
+                  handleSelectMovie(found)
+                } else {
+                  navigate(`/booking/${e.target.value}`)
+                }
+              }}
+              className="bg-white border border-slate-200 text-xs font-bold text-slate-800 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs max-w-[200px] truncate"
             >
               {allMovies.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -390,7 +486,7 @@ export default function SeatSelection() {
                       {movie.title}
                     </h1>
 
-                    <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                    <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5 flex-wrap">
                       <Building2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                       <span className="font-bold text-slate-800">{selectedTheatre.name}</span>
                       <span>• {selectedTheatre.city}</span>
@@ -398,17 +494,26 @@ export default function SeatSelection() {
                   </div>
                 </div>
 
-                {/* Theatre Venue Selector Dropdown */}
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Theatre Venue Selector & Change Cinema Action */}
+                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setIsTheatreModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-colors cursor-pointer"
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>Change Cinema</span>
+                  </button>
+
                   <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-2 flex items-center gap-2 text-xs">
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                     <select
                       value={selectedTheatre.id}
                       onChange={(e) => {
                         const found = THEATRES_LIST.find((t) => t.id === e.target.value)
-                        if (found) setSelectedTheatre(found)
+                        if (found) handleSelectTheatre(found)
                       }}
-                      className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                      className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer max-w-[200px] truncate"
                     >
                       {THEATRES_LIST.map((th) => (
                         <option key={th.id} value={th.id}>
@@ -447,28 +552,47 @@ export default function SeatSelection() {
                   </div>
                 </div>
 
-                {/* Showtimes Pills */}
+                {/* Showtimes Pills with Capacity Status Tags */}
                 <div className="md:col-span-6 space-y-1.5">
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
                     <Clock className="w-3 h-3 text-blue-600" />
                     <span>Available Showtimes</span>
                   </label>
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                    {availableShowtimes.map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        onClick={() => handleShowtimeChange(st)}
-                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
-                          selectedShowtime === st
-                            ? 'bg-[#007bff] text-white shadow-xs ring-2 ring-blue-500/20'
-                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
-                        }`}
-                      >
-                        <Clock className="w-3 h-3" />
-                        <span>{st}</span>
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {availableShowtimes.map((st) => {
+                      const isSelected = selectedShowtime === st
+                      const info = showtimeStatuses[st] || { status: 'Available', color: 'emerald' }
+                      return (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => handleShowtimeChange(st)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex flex-col items-center gap-0.5 ${
+                            isSelected
+                              ? 'bg-[#007bff] text-white shadow-xs ring-2 ring-blue-500/20'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{st}</span>
+                          </div>
+                          <span
+                            className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded-full ${
+                              isSelected
+                                ? 'bg-white/20 text-white'
+                                : info.color === 'emerald'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : info.color === 'amber'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {info.status}
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -1002,6 +1126,24 @@ export default function SeatSelection() {
         onClose={() => setIsTicketOpen(false)}
         ticket={activeTicket}
       />
+
+      {/* Module 6: Interactive Movie Picker Modal */}
+      <MoviePickerModal
+        isOpen={isMovieModalOpen}
+        onClose={() => setIsMovieModalOpen(false)}
+        movies={allMovies}
+        currentMovieId={movie?.id}
+        onSelectMovie={handleSelectMovie}
+      />
+
+      {/* Module 6: Interactive Cinema Venue Picker Modal */}
+      <TheatrePickerModal
+        isOpen={isTheatreModalOpen}
+        onClose={() => setIsTheatreModalOpen(false)}
+        theatres={THEATRES_LIST}
+        currentTheatreId={selectedTheatre?.id}
+        onSelectTheatre={handleSelectTheatre}
+      />
     </div>
   )
 }
@@ -1100,3 +1242,325 @@ function CinemaSeatGraphic({ status = 'available', className = '', rotate = fals
     </svg>
   )
 }
+
+// Module 6: Movie Selector Modal for Feature 1 (Select Movie)
+function MoviePickerModal({ isOpen, onClose, movies, currentMovieId, onSelectMovie }) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedGenre, setSelectedGenre] = useState('All')
+
+  if (!isOpen) return null
+
+  const genres = ['All', 'Action', 'Sci-Fi', 'Adventure', 'Drama', 'Telugu', 'English']
+
+  const filteredMovies = movies.filter((m) => {
+    const matchesSearch =
+      !searchTerm.trim() ||
+      m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.genre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.language?.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesGenre =
+      selectedGenre === 'All' ||
+      m.genre?.toLowerCase().includes(selectedGenre.toLowerCase()) ||
+      m.language?.toLowerCase().includes(selectedGenre.toLowerCase())
+
+    return matchesSearch && matchesGenre
+  })
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="movie-picker-title"
+    >
+      <div
+        className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-900 text-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/40 flex items-center justify-center">
+              <Film className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 id="movie-picker-title" className="text-base sm:text-lg font-bold text-white leading-tight">
+                Select Movie for Ticket Booking
+              </h2>
+              <p className="text-xs text-slate-400">
+                Choose a cinema feature to view auditorium seating and book your passes
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close Movie Picker"
+            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Search & Genre Filters */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-[#f8fafc] space-y-3 shrink-0">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by movie title, genre, language..."
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
+            />
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {genres.map((g) => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setSelectedGenre(g)}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  selectedGenre === g
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200'
+                }`}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Movies Grid */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+          {filteredMovies.length === 0 ? (
+            <div className="text-center py-12 text-slate-400 text-xs">
+              No movies match your search. Try another keyword.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {filteredMovies.map((m) => {
+                const isCurrent = String(m.id) === String(currentMovieId)
+                return (
+                  <div
+                    key={m.id}
+                    className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
+                      isCurrent
+                        ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20 shadow-xs'
+                        : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex gap-3">
+                      <img
+                        src={m.poster}
+                        alt={m.title}
+                        className="w-16 h-24 object-cover rounded-xl shadow-xs shrink-0 border border-slate-200"
+                        onError={(e) => {
+                          e.target.onerror = null
+                          e.target.src =
+                            'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=300&auto=format&fit=crop&q=80'
+                        }}
+                      />
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-extrabold uppercase">
+                            {m.screen || 'IMAX 3D'}
+                          </span>
+                          <span className="text-[11px] font-bold text-amber-500 flex items-center gap-0.5">
+                            <Star className="w-3 h-3 fill-current" />
+                            {m.rating}
+                          </span>
+                        </div>
+                        <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight line-clamp-2">
+                          {m.title}
+                        </h3>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          {m.duration} • {m.language}
+                        </p>
+                        <p className="text-[10px] text-slate-400 truncate">{m.genre}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700">
+                        ₹250 - ₹640
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onSelectMovie(m)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                          isCurrent
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white'
+                        }`}
+                      >
+                        {isCurrent ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Current</span>
+                          </>
+                        ) : (
+                          <span>Select Movie</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Module 6: Theatre / Cinema Selector Modal for Feature 2 (Select Theatre)
+function TheatrePickerModal({ isOpen, onClose, theatres, currentTheatreId, onSelectTheatre }) {
+  const [selectedCity, setSelectedCity] = useState('All')
+
+  if (!isOpen) return null
+
+  const cities = ['All', 'Bengaluru', 'Chennai', 'Hyderabad', 'Mumbai', 'Delhi NCR', 'Kochi']
+
+  const filteredTheatres = theatres.filter((th) => {
+    return selectedCity === 'All' || th.city.toLowerCase() === selectedCity.toLowerCase()
+  })
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="theatre-picker-title"
+    >
+      <div
+        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-900 text-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/40 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 id="theatre-picker-title" className="text-base sm:text-lg font-bold text-white leading-tight">
+                Select Cinema & Screen Venue
+              </h2>
+              <p className="text-xs text-slate-400">
+                Choose an auditorium location near you for instant seat allocation
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close Theatre Picker"
+            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* City Filter Tabs */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-[#f8fafc] space-y-2 shrink-0">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            Filter by City
+          </label>
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {cities.map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => setSelectedCity(city)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  selectedCity === city
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Theatres List */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-3.5 flex-1">
+          {filteredTheatres.map((th) => {
+            const isCurrent = String(th.id) === String(currentTheatreId)
+            return (
+              <div
+                key={th.id}
+                className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  isCurrent
+                    ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-xs'
+                }`}
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                      {th.name}
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+                      {th.screensCount} Screens
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    <span>{th.address}, {th.city}</span>
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    <span className="font-semibold text-slate-600">Sound:</span> {th.soundSystem}
+                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                    {(th.facilities || []).slice(0, 4).map((f) => (
+                      <span
+                        key={f}
+                        className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                    {th.dailyShows} Daily Shows
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onSelectTheatre(th)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isCurrent
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {isCurrent ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Current Cinema</span>
+                      </>
+                    ) : (
+                      <span>Select Cinema</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+

@@ -122,23 +122,23 @@ export async function getGenresMap() {
 // Fallback curated movies in case of offline/network failure
 const FALLBACK_MOVIES = [
   {
-    id: 969681,
-    title: 'Spider-Man: Brand New Day',
-    overview: 'Fighting crime full-time as Spider-Man in a world that does not remember him sparks a profound change in Peter Parker.',
-    rating: 8.2,
-    voteCount: 3410,
+    id: 569094,
+    title: 'Spider-Man: Beyond the Spider-Verse',
+    overview: 'Miles Morales catapults across the Multiverse with Gwen Stacy and a team of Spider-Heroes to confront an enigmatic threat.',
+    rating: 8.7,
+    voteCount: 4210,
     poster: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=600&auto=format&fit=crop&q=80',
     backdrop: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&auto=format&fit=crop&q=80',
-    genre: 'Action / Sci-Fi',
-    genreIds: [28, 878],
+    genre: 'Animation / Action',
+    genreIds: [16, 28],
     language: 'English',
     languageCode: 'en',
-    duration: '2h 25m',
-    runtimeMinutes: 145,
-    releaseDate: '2026-07-29',
+    duration: '2h 20m',
+    runtimeMinutes: 140,
+    releaseDate: '2026-06-15',
     screen: 'IMAX Laser 3D',
     price: 380,
-    trailerKey: 'FB-pD2gDH2Q',
+    trailerKey: 'cqGjhVJWtEg',
     showtimes: ['1:15 PM', '4:30 PM', '7:45 PM', '10:15 PM']
   },
   {
@@ -1168,7 +1168,7 @@ export const movieService = {
         const res = await tvmazeClient.get(`/shows/${idNum}?embed=cast`)
         const show = res.data
         const base = formatTvmazeShow(show)
-        const castMembers = (show._embedded?.cast || []).slice(0, 6).map((c) => ({
+        const castMembers = (show['_embedded']?.cast || []).slice(0, 6).map((c) => ({
           id: c.person?.id || Math.random(),
           name: c.person?.name || 'Actor',
           character: c.character?.name || 'Main Cast',
@@ -1268,8 +1268,8 @@ export const movieService = {
     }
   },
 
-  // Retrieve booked seats for a movie and showtime
-  getBookedSeats(movieTitle, showtime) {
+  // Retrieve booked seats for a movie, showtime, date, and theatre
+  getBookedSeats(movieTitle, showtime, date, theatreId) {
     try {
       const stored = localStorage.getItem('vscinemas_bookings')
       const bookedSet = new Set(INITIAL_BOOKED_SEATS)
@@ -1278,7 +1278,9 @@ export const movieService = {
         bookings.forEach((b) => {
           const matchTitle = !movieTitle || b.movieTitle?.toLowerCase() === movieTitle?.toLowerCase()
           const matchTime = !showtime || b.showtime === showtime
-          if (matchTitle && matchTime && Array.isArray(b.seats)) {
+          const matchDate = !date || !b.date || b.date === date
+          const matchTheatre = !theatreId || !b.theatreId || String(b.theatreId) === String(theatreId)
+          if (matchTitle && matchTime && matchDate && matchTheatre && Array.isArray(b.seats)) {
             b.seats.forEach((seat) => bookedSet.add(seat))
           }
         })
@@ -1289,21 +1291,72 @@ export const movieService = {
     }
   },
 
-  // Store confirmed booking in local storage
+  // Store confirmed booking in local storage with strict DUPLICATE BOOKING PREVENTION
   async bookTickets(bookingData) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const bookings = JSON.parse(localStorage.getItem('vscinemas_bookings') || '[]')
-        const newBooking = {
-          id: `VS-${Math.floor(1000 + Math.random() * 9000)}`,
-          date: 'Just now',
-          status: 'Confirmed',
-          ...bookingData
+        try {
+          const stored = localStorage.getItem('vscinemas_bookings')
+          const bookings = stored ? JSON.parse(stored) : []
+
+          // 1. Validation: At least one seat
+          if (!bookingData.seats || bookingData.seats.length === 0) {
+            return reject(new Error('Please select at least 1 seat to complete booking.'))
+          }
+
+          // 2. Validation: Max seat limit
+          if (bookingData.seats.length > MAX_SEAT_LIMIT) {
+            return reject(new Error(`Selection exceeds maximum limit of ${MAX_SEAT_LIMIT} seats per booking.`))
+          }
+
+          // 3. PREVENT DUPLICATE BOOKINGS: Check if any requested seat is already booked for this exact show
+          const alreadyBooked = movieService.getBookedSeats(
+            bookingData.movieTitle,
+            bookingData.showtime,
+            bookingData.date,
+            bookingData.theatreId
+          )
+
+          const conflictSeats = (bookingData.seats || []).filter((seat) => alreadyBooked.includes(seat))
+          if (conflictSeats.length > 0) {
+            return reject(
+              new Error(
+                `Duplicate Booking Prevented: Seat(s) ${conflictSeats.join(', ')} have already been booked for this show.`
+              )
+            )
+          }
+
+          // 4. Generate unique, authentic Booking ID: VS-BK-XXXXX
+          const bookingId = `VS-BK-${Math.floor(10000 + Math.random() * 90000)}`
+          const newBooking = {
+            id: bookingId,
+            createdAt: new Date().toISOString(),
+            date: bookingData.date || 'Today',
+            status: 'Confirmed',
+            ...bookingData
+          }
+
+          bookings.unshift(newBooking)
+          localStorage.setItem('vscinemas_bookings', JSON.stringify(bookings))
+          resolve({ success: true, booking: newBooking })
+        } catch (err) {
+          reject(err)
         }
-        bookings.unshift(newBooking)
-        localStorage.setItem('vscinemas_bookings', JSON.stringify(bookings))
-        resolve({ success: true, booking: newBooking })
-      }, 300)
+      }, 350)
     })
+  }
+}
+
+// Module 6: Booking Service Export
+export const bookingService = {
+  getBookedSeats: (...args) => movieService.getBookedSeats(...args),
+  bookTickets: (...args) => movieService.bookTickets(...args),
+  getAllBookings: () => {
+    try {
+      const stored = localStorage.getItem('vscinemas_bookings')
+      return stored ? JSON.parse(stored) : INITIAL_RECENT_BOOKINGS
+    } catch {
+      return INITIAL_RECENT_BOOKINGS
+    }
   }
 }

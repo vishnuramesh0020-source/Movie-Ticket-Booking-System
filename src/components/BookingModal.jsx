@@ -6,7 +6,8 @@ import {
   AUDITORIUM_TIERS_CONFIG,
   INITIAL_BOOKED_SEATS,
   MAX_SEAT_LIMIT,
-  getSeatTierPrice
+  getSeatTierPrice,
+  THEATRES_LIST
 } from '../services/api'
 
 export default function BookingModal({
@@ -61,6 +62,9 @@ export default function BookingModal({
         movieTitle: movie.title,
         screen: movie.screen || 'IMAX Laser 3D',
         showtime: selectedShowtime,
+        date: 'Today',
+        theatreId: THEATRES_LIST[0].id,
+        theatreName: THEATRES_LIST[0].name,
         seats: selectedSeats,
         pricePerSeat: avgPrice,
         totalAmount,
@@ -68,6 +72,8 @@ export default function BookingModal({
         language: movie.language,
         genre: movie.genre
       })
+    } catch (err) {
+      toast.error(err.message || 'Booking transaction failed. Please retry.')
     } finally {
       setIsSubmitting(false)
     }

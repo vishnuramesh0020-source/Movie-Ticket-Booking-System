@@ -18,6 +18,8 @@ import TicketModal from '../components/TicketModal'
 import { theatreService, THEATRE_CITIES, movieService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+const THEATRE_SKELETON_SLOTS = ['tskel-1', 'tskel-2', 'tskel-3', 'tskel-4', 'tskel-5', 'tskel-6']
+
 export default function Theatres() {
   const { user } = useAuth()
 
@@ -122,17 +124,21 @@ export default function Theatres() {
 
   // Confirm booking
   const handleConfirmBooking = async (payload) => {
-    const bookingPayload = {
-      ...payload,
-      userEmail: user?.email || 'guest@vscinemas.com',
-      userName: user?.name || 'Valued Guest'
-    }
-    const res = await movieService.bookTickets(bookingPayload)
-    if (res.success) {
-      toast.success(`🎉 Booked ${payload.seats.length} ticket(s) at ${payload.screen}!`)
-      setIsBookingOpen(false)
-      setActiveTicket(res.booking)
-      setIsTicketOpen(true)
+    try {
+      const bookingPayload = {
+        ...payload,
+        userEmail: user?.email || 'guest@vscinemas.com',
+        userName: user?.name || 'Valued Guest'
+      }
+      const res = await movieService.bookTickets(bookingPayload)
+      if (res.success) {
+        toast.success(`🎉 Booked ${payload.seats.length} ticket(s) at ${payload.screen}!`)
+        setIsBookingOpen(false)
+        setActiveTicket(res.booking)
+        setIsTicketOpen(true)
+      }
+    } catch (err) {
+      toast.error(err.message || 'Booking transaction failed. Please retry.')
     }
   }
 
@@ -273,9 +279,9 @@ export default function Theatres() {
             ======================================================== */}
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {THEATRE_SKELETON_SLOTS.map((skelId) => (
               <div
-                key={i}
+                key={skelId}
                 className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 animate-pulse"
               >
                 <div className="h-44 bg-slate-200 rounded-xl w-full" />

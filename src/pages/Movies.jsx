@@ -25,6 +25,8 @@ import {
 } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 
+const MOVIE_SKELETON_SLOTS = ['mskel-1', 'mskel-2', 'mskel-3', 'mskel-4', 'mskel-5', 'mskel-6', 'mskel-7', 'mskel-8']
+
 export default function Movies() {
   const { user } = useAuth()
 
@@ -166,17 +168,21 @@ export default function Movies() {
   }
 
   const handleConfirmBooking = async (payload) => {
-    const bookingPayload = {
-      ...payload,
-      userEmail: user?.email || 'guest@vscinemas.com',
-      userName: user?.name || 'Valued Guest'
-    }
-    const res = await movieService.bookTickets(bookingPayload)
-    if (res.success) {
-      toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
-      setIsBookingOpen(false)
-      setActiveTicket(res.booking)
-      setIsTicketOpen(true)
+    try {
+      const bookingPayload = {
+        ...payload,
+        userEmail: user?.email || 'guest@vscinemas.com',
+        userName: user?.name || 'Valued Guest'
+      }
+      const res = await movieService.bookTickets(bookingPayload)
+      if (res.success) {
+        toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
+        setIsBookingOpen(false)
+        setActiveTicket(res.booking)
+        setIsTicketOpen(true)
+      }
+    } catch (err) {
+      toast.error(err.message || 'Booking transaction failed. Please retry.')
     }
   }
 
@@ -407,9 +413,9 @@ export default function Movies() {
             ======================================================== */}
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {MOVIE_SKELETON_SLOTS.map((skelId) => (
               <div
-                key={i}
+                key={skelId}
                 className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 animate-pulse"
               >
                 <div className="aspect-[2/3] bg-slate-200 rounded-xl w-full" />

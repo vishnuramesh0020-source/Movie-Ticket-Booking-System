@@ -71,18 +71,22 @@ export default function MovieDetail() {
   }, [id])
 
   const handleConfirmBooking = async (payload) => {
-    const bookingPayload = {
-      ...payload,
-      theatreName: selectedTheatre?.name || 'VS Cinemas IMAX Galleria',
-      userEmail: user?.email || 'guest@vscinemas.com',
-      userName: user?.name || 'Valued Guest'
-    }
-    const res = await movieService.bookTickets(bookingPayload)
-    if (res.success) {
-      toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
-      setIsBookingOpen(false)
-      setActiveTicket(res.booking)
-      setIsTicketOpen(true)
+    try {
+      const bookingPayload = {
+        ...payload,
+        theatreName: selectedTheatre?.name || 'VS Cinemas IMAX Galleria',
+        userEmail: user?.email || 'guest@vscinemas.com',
+        userName: user?.name || 'Valued Guest'
+      }
+      const res = await movieService.bookTickets(bookingPayload)
+      if (res.success) {
+        toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
+        setIsBookingOpen(false)
+        setActiveTicket(res.booking)
+        setIsTicketOpen(true)
+      }
+    } catch (err) {
+      toast.error(err.message || 'Booking transaction failed. Please retry.')
     }
   }
 
@@ -248,12 +252,12 @@ export default function MovieDetail() {
 
                   {/* Genres Tags */}
                   <div className="flex items-center gap-2 flex-wrap pt-1">
-                    {(movie.genre || '').split('/').map((g, idx) => (
+                    {(movie.genre || '').split('/').map((g) => g.trim()).filter(Boolean).map((genreName) => (
                       <span
-                        key={idx}
+                        key={genreName}
                         className="px-3 py-1 rounded-xl bg-white/15 text-white text-xs font-semibold border border-white/10"
                       >
-                        {g.trim()}
+                        {genreName}
                       </span>
                     ))}
                   </div>

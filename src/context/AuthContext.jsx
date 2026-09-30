@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import { toast } from 'react-toastify'
 
 const AuthContext = createContext(null)
@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
   }, [registeredUsers])
 
   // Login handler
-  const login = async (email, password, rememberMe = true) => {
+  const login = useCallback(async (email, password, rememberMe = true) => {
     const trimmedEmail = email.trim().toLowerCase()
 
     // Look up in registered users
@@ -101,10 +101,10 @@ export function AuthProvider({ children }) {
       toast.error(errorMsg)
       return { success: false, message: errorMsg }
     }
-  }
+  }, [registeredUsers])
 
   // Register handler
-  const register = async ({ name, email, password }) => {
+  const register = useCallback(async ({ name, email, password }) => {
     const trimmedEmail = email.trim().toLowerCase()
 
     const exists = registeredUsers.some(
@@ -145,10 +145,10 @@ export function AuthProvider({ children }) {
 
     toast.success(`Account created! Welcome to VS Cinemas, ${newUser.name}.`)
     return { success: true, user: sessionUser }
-  }
+  }, [registeredUsers])
 
   // Forgot password handler
-  const forgotPassword = async (email) => {
+  const forgotPassword = useCallback(async (email) => {
     const trimmedEmail = email.trim().toLowerCase()
     const userFound = registeredUsers.find(
       (u) => u.email.toLowerCase() === trimmedEmail
@@ -160,16 +160,16 @@ export function AuthProvider({ children }) {
       toast.info(`If an account exists for ${trimmedEmail}, a reset link has been dispatched.`)
     }
     return { success: true }
-  }
+  }, [registeredUsers])
 
   // Logout handler
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem('vscinemas_auth_user')
     toast.info('Logged out successfully.')
-  }
+  }, [])
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     isAuthenticated: !!user,
     rememberedEmail,
@@ -177,7 +177,7 @@ export function AuthProvider({ children }) {
     register,
     forgotPassword,
     logout
-  }
+  }), [user, rememberedEmail, login, register, forgotPassword, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

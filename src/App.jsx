@@ -83,8 +83,41 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/seats" element={<Navigate to="/seat-selection" replace />} />
-          <Route path="/seats/:movieId" element={<Navigate to="/seat-selection/:movieId" replace />} />
+          <Route
+            path="/booking"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/booking/:movieId"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/book-tickets"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/book-tickets/:movieId"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/seats" element={<Navigate to="/booking" replace />} />
+          <Route path="/seats/:movieId" element={<Navigate to="/booking/:movieId" replace />} />
+          <Route path="/book" element={<Navigate to="/booking" replace />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
