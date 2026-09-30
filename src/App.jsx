@@ -13,6 +13,7 @@ import Movies from './pages/Movies'
 import MovieDetail from './pages/MovieDetail'
 import Theatres from './pages/Theatres'
 import TheatreDetail from './pages/TheatreDetail'
+import SeatSelection from './pages/SeatSelection'
 
 export default function App() {
   return (
@@ -66,6 +67,24 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/seat-selection"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seat-selection/:movieId"
+            element={
+              <ProtectedRoute>
+                <SeatSelection />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/seats" element={<Navigate to="/seat-selection" replace />} />
+          <Route path="/seats/:movieId" element={<Navigate to="/seat-selection/:movieId" replace />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />

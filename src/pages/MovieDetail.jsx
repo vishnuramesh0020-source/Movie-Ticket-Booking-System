@@ -273,7 +273,13 @@ export default function MovieDetail() {
                     {/* Book Tickets */}
                     <button
                       type="button"
-                      onClick={() => setIsBookingOpen(true)}
+                      onClick={() =>
+                        navigate(
+                          `/seat-selection/${movie.id}?theatre=${selectedTheatre?.id}&time=${encodeURIComponent(
+                            selectedShowtime
+                          )}`
+                        )
+                      }
                       className="w-full xs:w-auto px-6 sm:px-7 py-3 rounded-2xl bg-[#007bff] hover:bg-[#0062cc] active:bg-[#0056b3] text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/40 flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5"
                     >
                       <Ticket className="w-4 h-4" />
@@ -391,7 +397,9 @@ export default function MovieDetail() {
                                 e.stopPropagation()
                                 setSelectedTheatre(th)
                                 setSelectedShowtime(st)
-                                setIsBookingOpen(true)
+                                navigate(
+                                  `/seat-selection/${movie.id}?theatre=${th.id}&time=${encodeURIComponent(st)}`
+                                )
                               }}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
                                 selectedTheatre.id === th.id && selectedShowtime === st
@@ -409,7 +417,13 @@ export default function MovieDetail() {
 
                   <button
                     type="button"
-                    onClick={() => setIsBookingOpen(true)}
+                    onClick={() =>
+                      navigate(
+                        `/seat-selection/${movie.id}?theatre=${selectedTheatre?.id}&time=${encodeURIComponent(
+                          selectedShowtime
+                        )}`
+                      )
+                    }
                     className="w-full py-3 bg-[#007bff] hover:bg-[#0062cc] active:bg-[#0056b3] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
                   >
                     <Ticket className="w-4 h-4" />

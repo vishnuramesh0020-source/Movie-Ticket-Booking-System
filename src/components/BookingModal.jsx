@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
-import { X, Clock, Ticket, CreditCard } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { X, Clock, Ticket, CreditCard, ExternalLink } from 'lucide-react'
 import { toast } from 'react-toastify'
-
-const SEAT_ROWS = ['A', 'B', 'C', 'D', 'E']
-const SEATS_PER_ROW = 8
-const DEFAULT_OCCUPIED_SEATS = ['A3', 'A4', 'B5', 'C2', 'D1', 'E8']
+import {
+  AUDITORIUM_TIERS_CONFIG,
+  INITIAL_BOOKED_SEATS,
+  MAX_SEAT_LIMIT,
+  getSeatTierPrice
+} from '../services/api'
 
 export default function BookingModal({
   isOpen,
@@ -13,27 +16,36 @@ export default function BookingModal({
   onConfirmBooking
 }) {
   const [selectedShowtime, setSelectedShowtime] = useState(movie?.showtimes?.[0] || '7:45 PM')
-  const [selectedSeats, setSelectedSeats] = useState(['D3', 'D4'])
+  const [selectedSeats, setSelectedSeats] = useState(['D1', 'D2'])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [prevMovieId, setPrevMovieId] = useState(movie?.id)
 
   if (movie && movie.id !== prevMovieId) {
     setPrevMovieId(movie.id)
     setSelectedShowtime(movie.showtimes?.[0] || '7:45 PM')
-    setSelectedSeats(['D3', 'D4'])
+    setSelectedSeats(['D1', 'D2'])
   }
 
   if (!isOpen || !movie) return null
 
   const handleToggleSeat = (seatId) => {
-    if (DEFAULT_OCCUPIED_SEATS.includes(seatId)) return
+    if (INITIAL_BOOKED_SEATS.includes(seatId)) return
 
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter((s) => s !== seatId))
     } else {
+      if (selectedSeats.length >= MAX_SEAT_LIMIT) {
+        toast.warning(`Maximum ${MAX_SEAT_LIMIT} seats allowed per booking.`)
+        return
+      }
       setSelectedSeats([...selectedSeats, seatId])
     }
   }
+
+  const totalAmount = selectedSeats.reduce(
+    (sum, seatId) => sum + getSeatTierPrice(seatId, movie?.price || 280),
+    0
+  )
 
   const handleConfirm = async () => {
     if (selectedSeats.length === 0) {
@@ -43,14 +55,15 @@ export default function BookingModal({
 
     setIsSubmitting(true)
     try {
+      const avgPrice = Math.round(totalAmount / selectedSeats.length)
       await onConfirmBooking({
         movieId: movie.id,
         movieTitle: movie.title,
         screen: movie.screen || 'IMAX Laser 3D',
         showtime: selectedShowtime,
         seats: selectedSeats,
-        pricePerSeat: movie.price || 280,
-        totalAmount: (movie.price || 280) * selectedSeats.length,
+        pricePerSeat: avgPrice,
+        totalAmount,
         poster: movie.poster,
         language: movie.language,
         genre: movie.genre
@@ -59,9 +72,6 @@ export default function BookingModal({
       setIsSubmitting(false)
     }
   }
-
-  const pricePerSeat = movie.price || 280
-  const totalAmount = pricePerSeat * selectedSeats.length
 
   return (
     <div
@@ -90,7 +100,7 @@ export default function BookingModal({
                 <span>•</span>
                 <span>{movie.language}</span>
                 <span>•</span>
-                <span>₹{pricePerSeat} / seat</span>
+                <span>₹250 - ₹640 / seat</span>
               </div>
             </div>
           </div>
@@ -134,54 +144,168 @@ export default function BookingModal({
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Select Your Seats
+                Select Your Seats ({selectedSeats.length})
               </span>
-              <span className="text-xs font-semibold text-blue-600">
-                {selectedSeats.length} seat(s) selected
-              </span>
+              <Link
+                to={`/seat-selection/${movie.id}?time=${encodeURIComponent(selectedShowtime)}`}
+                onClick={onClose}
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                <span>Full Seating Matrix</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
-            {/* Simulated Cinema Screen Projection */}
-            <div className="relative mb-4 pt-1">
-              <div className="h-1.5 w-3/4 mx-auto rounded-full bg-gradient-to-r from-blue-400 via-indigo-500 to-blue-400 shadow-sm shadow-blue-500/50" />
-              <p className="text-[10px] text-center font-bold tracking-widest text-slate-400 uppercase mt-1">
-                Auditorium Screen
-              </p>
+            {/* Cinema Screen Banner (Matching user reference image: "Screen this side") */}
+            <div className="pb-3 pt-1 text-center w-full max-w-sm sm:max-w-md mx-auto select-none">
+              <div className="relative flex flex-col items-center">
+                <svg
+                  viewBox="0 0 540 64"
+                  className="w-full h-8 sm:h-9.5 drop-shadow-[0_2px_8px_rgba(186,230,253,0.3)]"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="modalScreenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.75" />
+                      <stop offset="100%" stopColor="#f0f9ff" stopOpacity="0.3" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Screen Canopy Perspective Polygon with subtle curved edges */}
+                  <path
+                    d="M 14 12 Q 270 4 526 12 L 480 54 Q 270 45 60 54 Z"
+                    fill="url(#modalScreenGrad)"
+                    stroke="#bae6fd"
+                    strokeWidth="1.2"
+                    strokeOpacity="0.7"
+                  />
+
+                  {/* Top Edge Highlight */}
+                  <path
+                    d="M 16 12 Q 270 4 524 12"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                    strokeOpacity="0.85"
+                    strokeLinecap="round"
+                  />
+
+                  {/* Centered "Screen this side" Text */}
+                  <text
+                    x="270"
+                    y="32"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-[#8fa1b3] font-medium tracking-wide select-none"
+                    style={{ fontSize: '13px', fontFamily: 'inherit' }}
+                  >
+                    Screen this side
+                  </text>
+                </svg>
+              </div>
             </div>
 
-            {/* Matrix of Seats wrapped in overflow-x-auto for small mobile resilience */}
+            {/* Matrix of Seats matching Reference Tiers & Walkway Aisle */}
             <div className="overflow-x-auto w-full py-1">
-              <div className="min-w-[260px] space-y-2 max-w-md mx-auto">
-                {SEAT_ROWS.map((row) => (
-                  <div key={row} className="flex items-center justify-center gap-1.5 sm:gap-2">
-                    <span className="w-4 text-[11px] font-bold text-slate-400 text-center">
-                      {row}
-                    </span>
-                    <div className="flex items-center gap-1 sm:gap-1.5">
-                      {Array.from({ length: SEATS_PER_ROW }).map((_, idx) => {
-                        const seatNum = idx + 1
-                        const seatId = `${row}${seatNum}`
-                        const isOccupied = DEFAULT_OCCUPIED_SEATS.includes(seatId)
-                        const isSelected = selectedSeats.includes(seatId)
+              <div className="min-w-[420px] max-w-lg mx-auto space-y-2.5">
+                {AUDITORIUM_TIERS_CONFIG.map((tierGroup) => (
+                  <div key={tierGroup.tierId} className="space-y-1">
+                    {/* Tier Heading */}
+                    <div className="text-[10px] sm:text-[11px] font-semibold text-slate-700 pl-0.5">
+                      {tierGroup.name} - ₹ {tierGroup.defaultPrice}
+                    </div>
 
-                        let seatClasses = 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-blue-50 hover:border-blue-400 cursor-pointer'
-                        if (isOccupied) {
-                          seatClasses = 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-50'
-                        } else if (isSelected) {
-                          seatClasses = 'bg-[#007bff] text-white border-[#007bff] shadow-xs scale-105 cursor-pointer font-bold'
-                        }
+                    {/* Rows */}
+                    <div className="space-y-1.5">
+                      {tierGroup.rows.map((rowConfig) => {
+                        const rowLetter = rowConfig.row
 
                         return (
-                          <button
-                            key={seatId}
-                            type="button"
-                            disabled={isOccupied}
-                            onClick={() => handleToggleSeat(seatId)}
-                            className={`w-6.5 sm:w-8 h-6.5 sm:h-8 rounded-lg border text-[10px] sm:text-[11px] font-medium flex items-center justify-center transition-all ${seatClasses}`}
-                            title={`Seat ${seatId} ${isOccupied ? '(Reserved)' : ''}`}
+                          <div
+                            key={rowLetter}
+                            className="flex items-center justify-between gap-1.5 sm:gap-2"
                           >
-                            {seatNum}
-                          </button>
+                            {/* Left Row Letter */}
+                            <span className="w-3 text-[10px] font-medium text-slate-400 text-center select-none shrink-0">
+                              {rowLetter}
+                            </span>
+
+                            {/* Center Row with Walkway Aisle */}
+                            <div
+                              className={`flex-1 flex items-center justify-center gap-3 sm:gap-5 ${rowConfig.indentClass}`}
+                            >
+                              {/* Left Seat Block */}
+                              <div className="flex items-center gap-1">
+                                {rowConfig.leftSeats.map((seatNum) => {
+                                  const seatId = `${rowLetter}${seatNum}`
+                                  const isOccupied = INITIAL_BOOKED_SEATS.includes(seatId)
+                                  const isSelected = selectedSeats.includes(seatId)
+
+                                  return (
+                                    <button
+                                      key={seatId}
+                                      type="button"
+                                      disabled={isOccupied}
+                                      onClick={() => handleToggleSeat(seatId)}
+                                      className="group relative cursor-pointer disabled:cursor-not-allowed focus:outline-none transition-transform active:scale-95"
+                                      title={`Seat ${seatId} • ${tierGroup.name} - ₹${tierGroup.defaultPrice} ${
+                                        isOccupied ? '(Reserved)' : ''
+                                      }`}
+                                    >
+                                      <CinemaSeatGraphic
+                                        status={
+                                          isOccupied
+                                            ? 'booked'
+                                            : isSelected
+                                            ? 'selected'
+                                            : 'available'
+                                        }
+                                        className="w-4 h-4 sm:w-5 sm:h-5"
+                                      />
+                                    </button>
+                                  )
+                                })}
+                              </div>
+
+                              {/* Right Seat Block */}
+                              <div className="flex items-center gap-1">
+                                {rowConfig.rightSeats.map((seatNum) => {
+                                  const seatId = `${rowLetter}${seatNum}`
+                                  const isOccupied = INITIAL_BOOKED_SEATS.includes(seatId)
+                                  const isSelected = selectedSeats.includes(seatId)
+
+                                  return (
+                                    <button
+                                      key={seatId}
+                                      type="button"
+                                      disabled={isOccupied}
+                                      onClick={() => handleToggleSeat(seatId)}
+                                      className="group relative cursor-pointer disabled:cursor-not-allowed focus:outline-none transition-transform active:scale-95"
+                                      title={`Seat ${seatId} • ${tierGroup.name} - ₹${tierGroup.defaultPrice} ${
+                                        isOccupied ? '(Reserved)' : ''
+                                      }`}
+                                    >
+                                      <CinemaSeatGraphic
+                                        status={
+                                          isOccupied
+                                            ? 'booked'
+                                            : isSelected
+                                            ? 'selected'
+                                            : 'available'
+                                        }
+                                        className="w-4 h-4 sm:w-5 sm:h-5"
+                                      />
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Right Row Letter */}
+                            <span className="w-3 text-[10px] font-medium text-slate-400 text-center select-none shrink-0">
+                              {rowLetter}
+                            </span>
+                          </div>
                         )
                       })}
                     </div>
@@ -191,18 +315,18 @@ export default function BookingModal({
             </div>
 
             {/* Seat Legend */}
-            <div className="flex items-center justify-center gap-4 sm:gap-5 mt-3 text-[11px] font-medium text-slate-500 border-t border-slate-100 pt-3">
+            <div className="flex items-center justify-center gap-6 mt-3 text-xs font-medium text-slate-500 border-t border-slate-100 pt-3">
               <span className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-200" />
-                Available
+                <CinemaSeatGraphic status="available" className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Available</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded bg-[#007bff] border border-[#007bff]" />
-                Selected
+                <CinemaSeatGraphic status="selected" className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="font-bold text-blue-600">Selected</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300 opacity-60" />
-                Occupied
+                <CinemaSeatGraphic status="booked" className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Booked</span>
               </span>
             </div>
           </div>
@@ -214,7 +338,9 @@ export default function BookingModal({
                 Seats: <span className="font-bold text-slate-800">{selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None'}</span>
               </div>
               <div className="text-xs text-slate-500 font-medium mt-0.5">
-                Calculation: {selectedSeats.length} × ₹{pricePerSeat}
+                {selectedSeats.length > 0
+                  ? selectedSeats.map((sId) => `${sId} (₹${getSeatTierPrice(sId, movie?.price || 280)})`).join(' + ')
+                  : 'Select seats from the layout'}
               </div>
             </div>
 
@@ -255,5 +381,90 @@ export default function BookingModal({
         </div>
       </div>
     </div>
+  )
+}
+
+function CinemaSeatGraphic({ status = 'available', className = '' }) {
+  if (status === 'selected') {
+    return (
+      <svg
+        viewBox="0 0 32 30"
+        className={`w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-150 ${className}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          filter: 'drop-shadow(0px 3px 8px rgba(67, 97, 238, 0.45))'
+        }}
+      >
+        <path
+          d="M 4 11 L 4 22 C 4 25.5 6.2 27 9 27 L 23 27 C 25.8 27 28 25.5 28 22 L 28 11"
+          stroke="#4361ee"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+        <rect
+          x="7.5"
+          y="3"
+          width="17"
+          height="18"
+          rx="3.5"
+          fill="#4361ee"
+        />
+      </svg>
+    )
+  }
+
+  if (status === 'booked') {
+    return (
+      <svg
+        viewBox="0 0 32 30"
+        className={`w-6 h-6 sm:w-7 sm:h-7 ${className}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M 4 11 L 4 22 C 4 25.5 6.2 27 9 27 L 23 27 C 25.8 27 28 25.5 28 22 L 28 11"
+          stroke="#7e8693"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <rect
+          x="7.5"
+          y="3"
+          width="17"
+          height="18"
+          rx="3.5"
+          fill="#8d95a2"
+        />
+      </svg>
+    )
+  }
+
+  return (
+    <svg
+      viewBox="0 0 32 30"
+      className={`w-6 h-6 sm:w-7 sm:h-7 transition-all duration-150 group-hover:scale-105 ${className}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M 4 11 L 4 22 C 4 25.5 6.2 27 9 27 L 23 27 C 25.8 27 28 25.5 28 22 L 28 11"
+        stroke="#cbd5e1"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        className="group-hover:stroke-blue-400 transition-colors"
+      />
+      <rect
+        x="7.5"
+        y="3"
+        width="17"
+        height="18"
+        rx="3.5"
+        fill="#f1f3f5"
+        stroke="#e2e8f0"
+        strokeWidth="1"
+        className="group-hover:fill-blue-50/70 group-hover:stroke-blue-300 transition-colors"
+      />
+    </svg>
   )
 }

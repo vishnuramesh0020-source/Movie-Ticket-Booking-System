@@ -777,6 +777,120 @@ export const theatreService = {
   }
 }
 
+// Seat Tiers & Layout Constants for Module 5: Seat Selection (Matching Reference Layout)
+export const SEAT_TIERS = {
+  EXECUTIVE: {
+    id: 'EXECUTIVE',
+    name: 'Executive',
+    rows: ['F', 'E'],
+    basePrice: 250,
+    badge: 'Upper Tier',
+    description: 'Elevated cinema seating with panoramic screen view'
+  },
+  PREMIUM: {
+    id: 'PREMIUM',
+    name: 'Premium',
+    rows: ['D', 'C'],
+    basePrice: 340,
+    badge: 'Club Prime',
+    description: 'Central acoustic sweet spot with wide legroom'
+  },
+  PLATINUM: {
+    id: 'PLATINUM',
+    name: 'Platinum',
+    rows: ['B', 'A'],
+    basePrice: 640,
+    badge: 'VIP Front Tier',
+    description: 'Luxury plush seating with premium viewing proximity'
+  }
+}
+
+export const AUDITORIUM_TIERS_CONFIG = [
+  {
+    tierId: 'EXECUTIVE',
+    name: 'Executive',
+    defaultPrice: 250,
+    rows: [
+      {
+        row: 'F',
+        leftSeats: [1, 2, 3, 4],
+        rightSeats: [5, 6, 7, 8],
+        indentClass: 'sm:pl-6 sm:pr-6'
+      },
+      {
+        row: 'E',
+        leftSeats: [1, 2, 3, 4, 5],
+        rightSeats: [6, 7, 8, 9, 10],
+        indentClass: ''
+      }
+    ]
+  },
+  {
+    tierId: 'PREMIUM',
+    name: 'Premium',
+    defaultPrice: 340,
+    rows: [
+      {
+        row: 'D',
+        leftSeats: [1, 2, 3, 4, 5],
+        rightSeats: [6, 7, 8, 9, 10, 11, 12],
+        indentClass: ''
+      },
+      {
+        row: 'C',
+        leftSeats: [1, 2, 3, 4, 5, 6, 7],
+        rightSeats: [8, 9, 10, 11, 12, 13, 14],
+        indentClass: ''
+      }
+    ]
+  },
+  {
+    tierId: 'PLATINUM',
+    name: 'Platinum',
+    defaultPrice: 640,
+    rows: [
+      {
+        row: 'B',
+        leftSeats: [1, 2, 3, 4, 5],
+        rightSeats: [6, 7, 8, 9, 10, 11, 12],
+        indentClass: ''
+      },
+      {
+        row: 'A',
+        leftSeats: [1, 2, 3, 4, 5, 6, 7],
+        rightSeats: [8, 9, 10, 11, 12, 13, 14, 15],
+        indentClass: ''
+      }
+    ]
+  }
+]
+
+export function getSeatTierPrice(seatId, defaultPrice = 280) {
+  if (!seatId) return defaultPrice
+  const row = seatId.charAt(0)
+  if (['F', 'E'].includes(row)) return 250
+  if (['D', 'C'].includes(row)) return 340
+  if (['B', 'A'].includes(row)) return 640
+  return defaultPrice
+}
+
+export const INITIAL_BOOKED_SEATS = [
+  // Executive Row F
+  'F3', 'F4', 'F6', 'F8',
+  // Executive Row E
+  'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9', 'E10',
+  // Premium Row D
+  'D3', 'D4', 'D5', 'D6', 'D12',
+  // Premium Row C
+  'C5', 'C6', 'C8', 'C9', 'C10', 'C11', 'C12', 'C13', 'C14',
+  // Platinum Row B
+  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'B12',
+  // Platinum Row A
+  'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A13', 'A14'
+]
+
+export const MAX_SEAT_LIMIT = 8
+
 // Revenue Summary Dummy Data in Indian Rupees (₹)
 export const REVENUE_DATA = {
   totalRevenue: 384250, // ₹3,84,250
@@ -1151,6 +1265,27 @@ export const movieService = {
       tagline: 'Experience cinema in extraordinary precision.',
       spokenLanguages: matchFallback.language,
       status: 'In Theatres'
+    }
+  },
+
+  // Retrieve booked seats for a movie and showtime
+  getBookedSeats(movieTitle, showtime) {
+    try {
+      const stored = localStorage.getItem('vscinemas_bookings')
+      const bookedSet = new Set(INITIAL_BOOKED_SEATS)
+      if (stored) {
+        const bookings = JSON.parse(stored)
+        bookings.forEach((b) => {
+          const matchTitle = !movieTitle || b.movieTitle?.toLowerCase() === movieTitle?.toLowerCase()
+          const matchTime = !showtime || b.showtime === showtime
+          if (matchTitle && matchTime && Array.isArray(b.seats)) {
+            b.seats.forEach((seat) => bookedSet.add(seat))
+          }
+        })
+      }
+      return Array.from(bookedSet)
+    } catch {
+      return INITIAL_BOOKED_SEATS
     }
   },
 
