@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Ticket, History } from 'lucide-react'
+import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Ticket, History, BarChart3 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
@@ -27,6 +27,9 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
     location.pathname.startsWith('/booking-history') ||
     location.pathname.startsWith('/bookings') ||
     location.pathname.startsWith('/my-bookings')
+  const isReports =
+    location.pathname.startsWith('/reports') ||
+    location.pathname.startsWith('/analytics')
   const isProfile = location.pathname.startsWith('/profile')
 
   const handleSearchSubmit = (e) => {
@@ -107,6 +110,18 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
               <History className="w-3.5 h-3.5" />
               <span>Bookings</span>
             </Link>
+
+            <Link
+              to="/reports"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isReports
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Reports</span>
+            </Link>
           </nav>
         </div>
 
@@ -163,6 +178,13 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
               title="Booking History"
             >
               <History className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/reports"
+              className={`p-1.5 rounded-md ${isReports ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+              title="Reports & Analytics"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
             </Link>
           </div>
 

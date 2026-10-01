@@ -766,7 +766,7 @@ export default function Profile() {
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      <main className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6">
         {/* ========================================================
             1. HERO PROFILE CARD BANNER
             ======================================================== */}

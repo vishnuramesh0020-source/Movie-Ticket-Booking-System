@@ -654,10 +654,10 @@ export default function SeatSelection() {
                         transformOrigin: 'top center',
                         transition: 'transform 0.2s ease-out'
                       }}
-                      className="min-w-[620px] max-w-2xl mx-auto space-y-6 sm:space-y-7"
+                      className="min-w-[620px] w-full max-w-3xl mx-auto space-y-6 sm:space-y-7"
                     >
                       {/* Cinema Screen Banner (Matching user reference image: "Screen this side") */}
-                      <div className="pb-5 pt-1 text-center w-full max-w-xl mx-auto select-none">
+                      <div className="pb-5 pt-1 text-center w-full max-w-2xl mx-auto select-none">
                         <div className="relative flex flex-col items-center">
                           <svg
                             viewBox="0 0 540 64"

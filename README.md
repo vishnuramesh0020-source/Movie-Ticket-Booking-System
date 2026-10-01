@@ -33,6 +33,16 @@ A modern, high-performance cinema ticketing management and movie catalog web app
   - API Connectivity Notice banner with instant "Retry" action.
   - Empty search/filter state with "Reset Filters" action.
 
+### 📈 Module 9: Reports & Analytics (`/reports`)
+- **Total Bookings & Total Revenue KPIs**: Live box office calculation combining `localStorage` bookings and benchmark sales records with dynamic monthly growth metrics.
+- **Most Booked Movie**: Real-time highlight card and ranking table showcasing the top box-office titles with tickets sold, gross revenue, and occupancy share.
+- **Most Popular Theatre**: Venue-level analytics ranking multiplexes by total hosted bookings, capacity utilization percentage, and daily show counts.
+- **Seat Occupancy Rate Deep-Dive**: Segmented occupancy breakdowns across Seating Tiers (Premium, Executive, Standard) and Showtime Windows (Morning, Matinee, Evening Prime, Late Night).
+- **Daily Booking Trends & Velocity**: Interactive SVG trend chart and daily timeline visualizer with timeframe filters (7 Days, 14 Days, 30 Days), weekend surge analysis (+68%), and hover inspection tooltips.
+- **Multi-Format Revenue Charts (Dummy Data)**: Multi-month stacked revenue comparisons (IMAX Laser, Dolby Cinema, 4DX Sensory, Standard) and projection yield distribution.
+- **Dashboard Statistics Hub**: Granular, searchable data tables for Top Movies, Multiplex Theatres, and Live Booking Transactions.
+- **Executive Export & Print Ready**: 1-click full CSV report export (`VS_Cinemas_Analytics_Report.csv`) and formatted print summary (`window.print()`).
+
 ### 📊 Module 2: Executive Analytics Dashboard
 - **5 Responsive Metric Cards**: Total Movies, Total Theatres, Total Bookings, Available Shows, and Today's Bookings.
 - **Revenue & Profit Analytics**:

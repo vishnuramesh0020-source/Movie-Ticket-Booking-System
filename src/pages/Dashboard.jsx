@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Film,
@@ -28,6 +28,7 @@ import BookingModal from '../components/BookingModal'
 import TicketModal from '../components/TicketModal'
 import {
   movieService,
+  bookingService,
   THEATRES_LIST,
   REVENUE_DATA,
   INITIAL_RECENT_BOOKINGS
@@ -79,7 +80,47 @@ export default function Dashboard() {
   })
 
   const theatres = THEATRES_LIST
-  const revenueSummary = REVENUE_DATA
+
+  // Real-time synchronization for live booking additions & cancellations
+  const [liveHighlightId, setLiveHighlightId] = useState(null)
+
+  useEffect(() => {
+    const unsubscribe = bookingService.subscribe((updated) => {
+      setBookings(updated)
+      if (updated.length > 0) {
+        setLiveHighlightId(updated[0].id)
+      }
+    })
+    return unsubscribe
+  }, [])
+
+  // Dynamic Live Revenue Summary Calculation
+  const revenueSummary = useMemo(() => {
+    const liveRevenue = bookings
+      .filter((b) => b.status !== 'Cancelled')
+      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+
+    const liveToday = bookings
+      .filter(
+        (b) =>
+          b.status !== 'Cancelled' &&
+          (b.date?.includes('Today') || b.date?.includes('Just now') || !b.date)
+      )
+      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+
+    const totalTicketsSold = 1420 * 2.4 + bookings.reduce((sum, b) => sum + (b.seats?.length || 2), 0)
+    const totalRev = REVENUE_DATA.totalRevenue + liveRevenue
+    const avgPrice = Math.round(totalRev / Math.max(1, totalTicketsSold))
+    const occupancy = Math.min(97.8, Number((84.6 + bookings.length * 0.12).toFixed(1)))
+
+    return {
+      ...REVENUE_DATA,
+      totalRevenue: totalRev,
+      todayRevenue: REVENUE_DATA.todayRevenue + liveToday,
+      averageTicketPrice: avgPrice,
+      seatOccupancyRate: occupancy
+    }
+  }, [bookings])
 
   // Fetch movies from TMDB third-party API
   useEffect(() => {
@@ -270,6 +311,7 @@ export default function Dashboard() {
       <Navbar searchQuery={searchQuery} onSearchChange={handleSearchChange} />
 
       <main className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-6 sm:space-y-8">
+
         {/* ========================================================
             MODULE 2 - ITEM 1 TO 5: THE 5 RESPONSIVE STAT CARDS
             (MATCHING EXACT VIBRANT COLORS, NOTCHES, & SEGMENTED DASHES)
@@ -1133,22 +1175,28 @@ export default function Dashboard() {
         <section id="recent-bookings" className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Recent Bookings Table (8 cols) styled as Project Details */}
           <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/60">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
               <div>
-                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-                  Recent Bookings
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                    Recent Bookings
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live Feed
+                  </span>
+                </div>
                 <span className="text-xs text-slate-400">
                   Live ticket reservation transactions feed ({bookings.length})
                 </span>
               </div>
-              <Link
-                to="/booking-history"
-                className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors"
-              >
-                <span>View Full History</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
+                <Link
+                  to="/booking-history"
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  <span>View Full History</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
             </div>
 
             <div className="overflow-x-auto">
@@ -1165,7 +1213,14 @@ export default function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-slate-100/80">
                   {bookings.slice(0, 4).map((b, idx) => (
-                    <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr
+                      key={b.id}
+                      className={`transition-all duration-300 ${
+                        b.id === liveHighlightId
+                          ? 'bg-emerald-50/90 ring-1 ring-emerald-400/80 shadow-xs'
+                          : 'hover:bg-slate-50/60'
+                      }`}
+                    >
                       {/* Customer Stack */}
                       <td className="py-3.5 px-3">
                         <div className="flex items-center gap-2.5">
@@ -1180,7 +1235,14 @@ export default function Dashboard() {
                             </span>
                           </div>
                           <div>
-                            <span className="text-xs font-bold text-slate-800 block">{b.userName}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-bold text-slate-800 block">{b.userName}</span>
+                              {b.id === liveHighlightId && (
+                                <span className="inline-flex items-center px-1.5 py-0.2 text-[9px] font-black uppercase rounded bg-emerald-600 text-white">
+                                  NEW
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[10px] text-slate-400 block font-mono">{b.id}</span>
                           </div>
                         </div>
@@ -1204,7 +1266,7 @@ export default function Dashboard() {
                           />
                         </div>
                         <span className="text-[10px] text-slate-400 font-semibold block mt-1">
-                          {b.seats?.join(', ')}
+                          {Array.isArray(b.seats) ? b.seats.join(', ') : b.seats}
                         </span>
                       </td>
 
@@ -1212,12 +1274,14 @@ export default function Dashboard() {
                       <td className="py-3.5 px-3 text-center">
                         <span
                           className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${
-                            idx === 0
+                            b.id === liveHighlightId
+                              ? 'bg-emerald-600 text-white animate-pulse'
+                              : idx === 0
                               ? 'bg-[#ea580c] text-white'
                               : 'bg-emerald-50 text-emerald-700'
                           }`}
                         >
-                          {b.status || 'Confirmed'}
+                          {b.id === liveHighlightId ? 'Just now' : (b.status || 'Confirmed')}
                         </span>
                       </td>
 

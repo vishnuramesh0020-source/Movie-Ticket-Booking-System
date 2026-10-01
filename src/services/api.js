@@ -1464,6 +1464,7 @@ export const movieService = {
 
           bookings.unshift(newBooking)
           localStorage.setItem('vscinemas_bookings', JSON.stringify(bookings))
+          notifyBookingsChanged(bookings)
           resolve({ success: true, booking: newBooking })
         } catch (err) {
           reject(err)
@@ -1498,6 +1499,7 @@ export const movieService = {
 
           bookings[targetIndex] = updatedBooking
           localStorage.setItem('vscinemas_bookings', JSON.stringify(bookings))
+          notifyBookingsChanged(bookings)
           resolve({ success: true, booking: updatedBooking })
         } catch (err) {
           reject(err)
@@ -1507,7 +1509,18 @@ export const movieService = {
   }
 }
 
-// Module 6 & Module 8: Booking Service Export
+// Real-Time Event Dispatcher for in-tab and cross-tab synchronization
+export const notifyBookingsChanged = (updatedBookings) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('vscinemas_bookings_updated', {
+        detail: { bookings: updatedBookings, timestamp: Date.now() }
+      })
+    )
+  }
+}
+
+// Live Booking Service Export with Real-time Subscription
 export const bookingService = {
   getBookedSeats: (...args) => movieService.getBookedSeats(...args),
   bookTickets: (...args) => movieService.bookTickets(...args),
@@ -1518,6 +1531,28 @@ export const bookingService = {
       return stored ? JSON.parse(stored) : INITIAL_RECENT_BOOKINGS
     } catch {
       return INITIAL_RECENT_BOOKINGS
+    }
+  },
+
+  // Real-Time Event Subscription (listens for in-tab custom events & cross-tab storage changes)
+  subscribe: (callback) => {
+    if (typeof window === 'undefined') return () => {}
+
+    const handleCustom = (e) => {
+      callback(e.detail?.bookings || bookingService.getAllBookings())
+    }
+    const handleStorage = (e) => {
+      if (e.key === 'vscinemas_bookings' || !e.key) {
+        callback(bookingService.getAllBookings())
+      }
+    }
+
+    window.addEventListener('vscinemas_bookings_updated', handleCustom)
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+      window.removeEventListener('vscinemas_bookings_updated', handleCustom)
+      window.removeEventListener('storage', handleStorage)
     }
   }
 }

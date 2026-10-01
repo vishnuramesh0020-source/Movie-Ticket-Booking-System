@@ -16,6 +16,7 @@ import SeatSelection from './pages/SeatSelection'
 import Payment from './pages/Payment'
 import Profile from './pages/Profile'
 import BookingHistory from './pages/BookingHistory'
+import Reports from './pages/Reports'
 
 export default function App() {
   return (
@@ -148,6 +149,16 @@ export default function App() {
           />
           <Route path="/bookings" element={<Navigate to="/booking-history" replace />} />
           <Route path="/my-bookings" element={<Navigate to="/booking-history" replace />} />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/analytics" element={<Navigate to="/reports" replace />} />
+          <Route path="/reports-and-analytics" element={<Navigate to="/reports" replace />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
