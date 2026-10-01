@@ -1,6 +1,5 @@
-import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Ticket } from 'lucide-react'
+import { LogOut, Bell, Search, LayoutDashboard, Film, Building2, Ticket, History } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 
@@ -24,6 +23,10 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
     location.pathname.startsWith('/book') ||
     location.pathname.startsWith('/payment') ||
     location.pathname.startsWith('/checkout')
+  const isBookings =
+    location.pathname.startsWith('/booking-history') ||
+    location.pathname.startsWith('/bookings') ||
+    location.pathname.startsWith('/my-bookings')
   const isProfile = location.pathname.startsWith('/profile')
 
   const handleSearchSubmit = (e) => {
@@ -92,6 +95,18 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
               <Ticket className="w-3.5 h-3.5" />
               <span>Book Tickets</span>
             </Link>
+
+            <Link
+              to="/booking-history"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isBookings
+                  ? 'bg-white text-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>Bookings</span>
+            </Link>
           </nav>
         </div>
 
@@ -141,6 +156,13 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
               title="Book Tickets"
             >
               <Ticket className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              to="/booking-history"
+              className={`p-1.5 rounded-md ${isBookings ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+              title="Booking History"
+            >
+              <History className="w-3.5 h-3.5" />
             </Link>
           </div>
 

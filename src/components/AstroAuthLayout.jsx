@@ -1,4 +1,3 @@
-import React from 'react'
 import bgImage from '../assets/astro-cinemas-bg.jpg'
 
 export default function AstroAuthLayout({ title, subtitle = 'Best Online Ticketing System In Town', children }) {

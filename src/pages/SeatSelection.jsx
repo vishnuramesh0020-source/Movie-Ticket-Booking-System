@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
   Ticket,

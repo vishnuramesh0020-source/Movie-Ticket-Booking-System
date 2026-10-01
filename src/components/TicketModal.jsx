@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { X, Printer, Download } from 'lucide-react'
+import { useMemo, useEffect } from 'react'
+import { Printer, Download } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 // Authentic Cinema Barcode Stripe Pattern
@@ -50,8 +50,15 @@ const BARCODE_STRIPES = [
 ]
 
 export default function TicketModal({ isOpen, onClose, ticket }) {
-  // Theme state: defaults to 'glassy' as requested
-  const [ticketTheme, setTicketTheme] = useState('glassy')
+  // Support closing via Escape key
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose?.()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   // Extract Screen number
   const screenVal = useMemo(() => {
@@ -145,23 +152,21 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
       const showDate = ticket.date || 'TODAY'
       const showtime = ticket.showtime || '7:45 PM'
 
-      const isGlassy = ticketTheme === 'glassy'
-      const bodyBg = isGlassy ? '#f1f5f9' : '#0b0f19'
-      const cardBg = isGlassy ? '#ffffff' : '#000000'
-      const cardColor = isGlassy ? '#0f172a' : '#ffffff'
-      const cardBorder = isGlassy ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)'
-      const cardShadow = isGlassy ? '0 20px 50px rgba(0,0,0,0.12)' : '0 25px 60px rgba(0,0,0,0.9)'
-      const posterGradient = isGlassy
-        ? 'linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.7) 50%, transparent 100%)'
-        : 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.45) 50%, transparent 100%)'
-      const castColor = isGlassy ? '#475569' : '#cbd5e1'
-      const titleColor = isGlassy ? '#0f172a' : '#ffffff'
-      const metaColor = isGlassy ? '#dc2626' : '#ef4444'
-      const colDivider = isGlassy ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)'
-      const colValColor = isGlassy ? '#0f172a' : '#ffffff'
-      const notchBg = isGlassy ? '#e2e8f0' : '#0b0f19'
-      const tearBorder = isGlassy ? '1.5px dashed rgba(0,0,0,0.15)' : '1.5px dashed rgba(255,255,255,0.22)'
-      const barcodeColor = isGlassy ? '#0f172a' : '#ffffff'
+      const bodyBg = '#ffffff'
+      const cardBg = '#000000'
+      const cardColor = '#ffffff'
+      const cardBorder = 'none'
+      const cardShadow = 'none'
+      const posterGradient =
+        'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.45) 50%, transparent 100%)'
+      const castColor = '#cbd5e1'
+      const titleColor = '#ffffff'
+      const metaColor = '#ef4444'
+      const colDivider = '1px solid rgba(255,255,255,0.12)'
+      const colValColor = '#ffffff'
+      const notchBg = '#ffffff'
+      const tearBorder = '1.5px dashed rgba(255,255,255,0.22)'
+      const barcodeColor = '#ffffff'
 
       const ticketHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -194,7 +199,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
     .poster-box {
       position: relative;
       width: 100%;
-      height: 240px;
+      height: 280px;
       background: #111;
     }
     .poster-img {
@@ -386,11 +391,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 transition-colors duration-300 animate-fade-in ${
-        ticketTheme === 'glassy'
-          ? 'bg-slate-900/30 backdrop-blur-2xl bg-white/60'
-          : 'bg-black/90 backdrop-blur-md'
-      }`}
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-white transition-colors duration-300 animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -401,62 +402,13 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
         className="relative flex flex-col items-center justify-center max-h-[96vh] my-auto select-none"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sleek Theme Switcher Pill (Glassy White vs Dark Cine) */}
-        <div className="flex items-center gap-1 p-1 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/90 shadow-sm mb-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setTicketTheme('glassy')}
-            className={`px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide transition-all cursor-pointer flex items-center gap-1 ${
-              ticketTheme === 'glassy'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>✨ Glassy White</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setTicketTheme('dark')}
-            className={`px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide transition-all cursor-pointer flex items-center gap-1 ${
-              ticketTheme === 'dark'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>🎬 Dark Cine</span>
-          </button>
-        </div>
-
         {/* ========================================================
             THE CINEMA BOARDING PASS (FIT-TO-SCREEN PROPORTIONED)
             ======================================================== */}
-        <div
-          className={`w-[88vw] max-w-[285px] sm:max-w-[310px] rounded-[26px] sm:rounded-[28px] overflow-hidden flex flex-col relative shrink-0 transition-all duration-300 ${
-            ticketTheme === 'glassy'
-              ? 'bg-white/95 backdrop-blur-2xl text-slate-900 border border-white/90 shadow-[0_25px_60px_rgba(15,23,42,0.18),0_0_40px_rgba(255,255,255,0.7)] ring-1 ring-slate-900/5'
-              : 'bg-black text-white border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.95)]'
-          }`}
-        >
-          {/* Integrated Corner Close Button */}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close Ticket"
-            className={`absolute top-2.5 right-2.5 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-md active:scale-95 ${
-              ticketTheme === 'glassy'
-                ? 'bg-white/80 hover:bg-white text-slate-800 hover:text-slate-950 border border-slate-200/80 shadow-xs'
-                : 'bg-black/60 hover:bg-black/80 text-white/90 hover:text-white border border-white/25 shadow-lg'
-            }`}
-          >
-            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </button>
+        <div className="w-[88vw] max-w-[285px] sm:max-w-[310px] rounded-[26px] sm:rounded-[28px] overflow-hidden flex flex-col relative shrink-0 transition-all duration-300 border-0 shadow-none outline-none bg-black text-white">
 
           {/* 1. TOP POSTER WITH GRADIENT VIGNETTE & MOVIE TITLE */}
-          <div
-            className={`relative w-full h-[180px] sm:h-[210px] overflow-hidden shrink-0 ${
-              ticketTheme === 'glassy' ? 'bg-slate-100' : 'bg-slate-950'
-            }`}
-          >
+          <div className="relative w-full h-[220px] sm:h-[250px] overflow-hidden shrink-0 bg-slate-950">
             <img
               src={
                 ticket.poster ||
@@ -471,79 +423,47 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
               }}
             />
 
-            {/* Subtle Gradient Blend to Black / White */}
-            <div
-              className={`absolute inset-0 flex flex-col justify-end p-3 sm:p-4 text-center transition-all ${
-                ticketTheme === 'glassy'
-                  ? 'bg-gradient-to-t from-white via-white/80 to-transparent'
-                  : 'bg-gradient-to-t from-black via-black/45 to-transparent'
-              }`}
-            >
+            {/* Subtle Gradient Blend */}
+            <div className="absolute inset-0 flex flex-col justify-end p-3.5 sm:p-4.5 text-center transition-all bg-gradient-to-t from-black via-black/45 to-transparent">
               {/* Billing Cast / Subhead */}
-              <div
-                className={`text-[8.5px] sm:text-[9.5px] font-bold tracking-[0.16em] uppercase mb-0.5 leading-tight truncate ${
-                  ticketTheme === 'glassy' ? 'text-slate-600' : 'text-slate-300 drop-shadow-sm'
-                }`}
-              >
+              <div className="text-[8.5px] sm:text-[9.5px] font-bold tracking-[0.16em] uppercase mb-0.5 leading-tight truncate text-slate-300 drop-shadow-sm">
                 {billingCast}
               </div>
 
               {/* Movie Title */}
               <h2
                 id="ticket-modal-title"
-                className={`text-lg sm:text-xl font-black uppercase tracking-tight leading-tight line-clamp-1 ${
-                  ticketTheme === 'glassy' ? 'text-slate-950' : 'text-white drop-shadow-lg'
-                }`}
+                className="text-lg sm:text-xl font-black uppercase tracking-tight leading-tight line-clamp-1 text-white drop-shadow-lg"
               >
                 {ticket.movieTitle || 'CREED III'}
               </h2>
 
               {/* Red Cinematic Banner */}
-              <div
-                className={`text-[9.5px] sm:text-[10.5px] font-extrabold tracking-[0.16em] uppercase mt-0.5 ${
-                  ticketTheme === 'glassy' ? 'text-red-600' : 'text-red-500 drop-shadow-sm'
-                }`}
-              >
+              <div className="text-[9.5px] sm:text-[10.5px] font-extrabold tracking-[0.16em] uppercase mt-0.5 text-red-500 drop-shadow-sm">
                 IN CINEMAS • {ticket.date || 'MARCH'}
               </div>
             </div>
           </div>
 
           {/* 2. MIDDLE METADATA: SCREEN, ROW, SEATS */}
-          <div
-            className={`px-4 pt-2.5 pb-1.5 shrink-0 transition-colors ${
-              ticketTheme === 'glassy' ? 'bg-white/95 text-slate-900' : 'bg-black text-white'
-            }`}
-          >
+          <div className="px-4 pt-3.5 pb-2.5 shrink-0 transition-colors bg-black text-white">
             <div className="flex items-center justify-between text-center">
               {/* SCREEN */}
               <div className="flex-1">
                 <span className="text-[9.5px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">
                   SCREEN
                 </span>
-                <span
-                  className={`text-xl sm:text-2xl font-black block mt-0.5 tracking-tight ${
-                    ticketTheme === 'glassy' ? 'text-slate-950' : 'text-white'
-                  }`}
-                >
+                <span className="text-xl sm:text-2xl font-black block mt-0.5 tracking-tight text-white">
                   {screenVal}
                 </span>
               </div>
 
               {/* ROW */}
-              <div
-                className={`flex-1 border-x px-1 ${
-                  ticketTheme === 'glassy' ? 'border-slate-200/90' : 'border-white/10'
-                }`}
-              >
+              <div className="flex-1 border-x px-1 border-white/10">
                 <span className="text-[9.5px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">
                   ROW
                 </span>
-                <span
-                  className={`text-xl sm:text-2xl font-black block mt-0.5 tracking-tight ${
-                    ticketTheme === 'glassy' ? 'text-slate-950' : 'text-white'
-                  }`}
-                >
+                <span className="text-xl sm:text-2xl font-black block mt-0.5 tracking-tight text-white">
                   {rowLabel}
                 </span>
               </div>
@@ -553,71 +473,37 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
                 <span className="text-[9.5px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">
                   SEATS
                 </span>
-                <span
-                  className={`text-xl sm:text-2xl font-black block mt-0.5 tracking-tight ${
-                    ticketTheme === 'glassy' ? 'text-slate-950' : 'text-white'
-                  }`}
-                >
+                <span className="text-xl sm:text-2xl font-black block mt-0.5 tracking-tight text-white">
                   {seatNumbers}
                 </span>
               </div>
             </div>
 
             {/* Subtle Watermark Fine Print */}
-            <div
-              className={`text-[8px] sm:text-[8.5px] font-mono tracking-[0.15em] uppercase text-center mt-1.5 truncate ${
-                ticketTheme === 'glassy' ? 'text-slate-400' : 'text-slate-600'
-              }`}
-            >
+            <div className="text-[8px] sm:text-[8.5px] font-mono tracking-[0.15em] uppercase text-center mt-2 truncate text-slate-500">
               {ticket.theatreName || 'VS CINEMAS'} • ADMIT PASS
             </div>
           </div>
 
           {/* 3. SIGNATURE SIDE CUTOUT NOTCHES & PERFORATION LINE */}
-          <div
-            className={`relative w-full h-6 flex items-center justify-center overflow-hidden shrink-0 transition-colors ${
-              ticketTheme === 'glassy' ? 'bg-white/95' : 'bg-black'
-            }`}
-          >
+          <div className="relative w-full h-8 flex items-center justify-center overflow-hidden shrink-0 transition-colors bg-black">
             {/* Left Notch Hole Punch */}
-            <div
-              className={`absolute -left-3 w-6 h-6 rounded-full shadow-inner ${
-                ticketTheme === 'glassy'
-                  ? 'bg-slate-200/90 border border-slate-300/80'
-                  : 'bg-[#0b0f19] border-r border-white/10'
-              }`}
-            />
+            <div className="absolute -left-4 w-8 h-8 rounded-full shadow-inner transition-colors bg-white" />
 
             {/* Dashed Perforation Line */}
-            <div
-              className={`w-full border-b border-dashed mx-4 ${
-                ticketTheme === 'glassy' ? 'border-slate-300' : 'border-white/20'
-              }`}
-            />
+            <div className="w-full border-b-2 border-dashed mx-6 border-white/25" />
 
             {/* Right Notch Hole Punch */}
-            <div
-              className={`absolute -right-3 w-6 h-6 rounded-full shadow-inner ${
-                ticketTheme === 'glassy'
-                  ? 'bg-slate-200/90 border border-slate-300/80'
-                  : 'bg-[#0b0f19] border-l border-white/10'
-              }`}
-            />
+            <div className="absolute -right-4 w-8 h-8 rounded-full shadow-inner transition-colors bg-white" />
           </div>
 
           {/* 4. BOTTOM BARCODE STUB */}
-          <div
-            className={`px-4 pb-3.5 pt-0.5 flex flex-col items-center justify-center text-center shrink-0 transition-colors ${
-              ticketTheme === 'glassy' ? 'bg-white/95' : 'bg-black'
-            }`}
-          >
+          <div className="px-4 pb-4 pt-1.5 flex flex-col items-center justify-center text-center shrink-0 transition-colors bg-black text-white">
             {/* Crisp Scalable Barcode */}
             <div className="w-full flex justify-center py-0.5">
               <svg
                 viewBox="0 0 220 50"
-                className={`w-full max-w-[200px] h-9 sm:h-10 ${
-                  ticketTheme === 'glassy' ? 'text-slate-950' : 'text-white'
-                }`}
+                className="w-full max-w-[200px] h-10 sm:h-11 text-white"
                 fill="currentColor"
               >
                 {BARCODE_STRIPES.map((stripe) => (
@@ -627,11 +513,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
             </div>
 
             {/* Barcode Number / Turnstile Booking ID */}
-            <div
-              className={`font-mono text-[8.5px] sm:text-[9px] tracking-[0.25em] font-bold mt-1 uppercase ${
-                ticketTheme === 'glassy' ? 'text-slate-500' : 'text-slate-400'
-              }`}
-            >
+            <div className="font-mono text-[8.5px] sm:text-[9px] tracking-[0.25em] font-bold mt-1.5 uppercase text-slate-400">
               * {ticket.id || 'VS-BK-7842'} *
             </div>
           </div>
@@ -642,11 +524,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
           <button
             type="button"
             onClick={handleDownloadTicket}
-            className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer ${
-              ticketTheme === 'glassy'
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-white text-slate-950 hover:bg-slate-100'
-            }`}
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download Pass</span>
@@ -655,11 +533,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
           <button
             type="button"
             onClick={handlePrint}
-            className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer ${
-              ticketTheme === 'glassy'
-                ? 'bg-white/90 hover:bg-white text-slate-800 border-slate-200/90 shadow-2xs backdrop-blur-md'
-                : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
-            }`}
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer bg-white/90 hover:bg-white text-slate-800 border-slate-200/90 shadow-2xs backdrop-blur-md"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print</span>
@@ -668,11 +542,7 @@ export default function TicketModal({ isOpen, onClose, ticket }) {
           <button
             type="button"
             onClick={onClose}
-            className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              ticketTheme === 'glassy'
-                ? 'bg-slate-200/70 hover:bg-slate-200 text-slate-700'
-                : 'bg-white/5 hover:bg-white/10 text-slate-300'
-            }`}
+            className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs"
           >
             Close
           </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Film,
@@ -16,7 +16,8 @@ import {
   TrendingUp,
   QrCode,
   ArrowUpRight,
-  BadgeIndianRupee
+  BadgeIndianRupee,
+  ChevronRight
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAuth } from '../context/AuthContext'
@@ -1141,6 +1142,13 @@ export default function Dashboard() {
                   Live ticket reservation transactions feed ({bookings.length})
                 </span>
               </div>
+              <Link
+                to="/booking-history"
+                className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors"
+              >
+                <span>View Full History</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             <div className="overflow-x-auto">

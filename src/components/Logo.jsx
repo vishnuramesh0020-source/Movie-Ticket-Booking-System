@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Logo({
   className = 'w-7 h-5',
   textClassName = 'text-xl',

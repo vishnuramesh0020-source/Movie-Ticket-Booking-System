@@ -1,4 +1,3 @@
-import React from 'react'
 import { X, Film, Star, Clock, Globe, Ticket, Volume2 } from 'lucide-react'
 
 export default function TrailerModal({ isOpen, onClose, movie, onBook }) {

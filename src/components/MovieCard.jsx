@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import { Star, Clock, Calendar, Globe, Play, Ticket, Info } from 'lucide-react'
 

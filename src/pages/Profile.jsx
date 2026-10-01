@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
   User,
@@ -1188,13 +1188,22 @@ export default function Profile() {
                 </button>
               </div>
 
-              <Link
-                to="/booking"
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer pr-1"
-              >
-                <span>Book New Tickets</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/booking-history"
+                  className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer pr-1"
+                >
+                  <span>Full History Portal</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  to="/booking"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer pr-1"
+                >
+                  <span>Book New</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
 
             {/* Bookings List Cards */}

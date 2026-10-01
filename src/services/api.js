@@ -3,8 +3,8 @@ import axios from 'axios'
 // Primary Third-Party API: The Movie Database (TMDB)
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_API_KEY = '4e44d9029b1270a757cddc766a1bcb63'
-export const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'
-export const TMDB_BACKDROP_BASE = 'https://image.tmdb.org/t/p/original'
+const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500'
+const TMDB_BACKDROP_BASE = 'https://image.tmdb.org/t/p/original'
 
 // Secondary Third-Party API: TVMaze (public, no key required)
 const TVMAZE_BASE_URL = 'https://api.tvmaze.com'
@@ -48,7 +48,7 @@ export const GENRES_LIST = [
 ]
 
 // Language code to human-readable names
-export const LANGUAGE_NAMES = {
+const LANGUAGE_NAMES = {
   en: 'English',
   hi: 'Hindi',
   ta: 'Tamil',
@@ -102,7 +102,7 @@ export const SORT_OPTIONS = [
 let genreMap = null
 
 // Fetch genre dictionary from TMDB third-party API
-export async function getGenresMap() {
+async function getGenresMap() {
   if (genreMap) return genreMap
   try {
     const res = await tmdbClient.get('/genre/movie/list')
@@ -935,13 +935,20 @@ export const INITIAL_RECENT_BOOKINGS = [
     showtime: '7:45 PM',
     seats: ['D13', 'D14'],
     row: 'D',
+    pricePerSeat: 260,
+    baseTicketsTotal: 520,
+    convenienceFee: 45,
+    gst: 8.1,
     totalAmount: 520,
-    userEmail: 'arun.kumar@gmail.com',
-    userName: 'Arun Kumar',
-    date: 'Today, 2:15 PM',
+    paymentMethod: 'Credit Card (•••• 4242)',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: 'Today',
+    createdAt: '2026-10-01T14:15:00.000Z',
     status: 'Confirmed',
     poster: 'https://image.tmdb.org/t/p/w500/cvsXj3I9Q00I9igWv1hv39RuwNJ.jpg',
-    theatreName: 'VS Cinemas Orion Mall',
+    theatreId: 'th-1',
+    theatreName: 'VS Cinemas IMAX Laser - Central Galleria',
     director: 'Michael B. Jordan',
     language: 'English',
     genre: 'Drama / Action'
@@ -953,11 +960,23 @@ export const INITIAL_RECENT_BOOKINGS = [
     showtime: '9:00 PM',
     seats: ['C3', 'C4', 'C5'],
     row: 'C',
+    pricePerSeat: 260,
+    baseTicketsTotal: 780,
+    convenienceFee: 45,
+    gst: 8.1,
     totalAmount: 780,
-    userEmail: 'priya.s@yahoo.com',
-    userName: 'Priya Sharma',
-    date: 'Today, 1:40 PM',
-    status: 'Confirmed'
+    paymentMethod: 'UPI (vishnu@okhdfcbank)',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: 'Today',
+    createdAt: '2026-10-01T13:40:00.000Z',
+    status: 'Confirmed',
+    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+    theatreId: 'th-2',
+    theatreName: 'VS Cinemas Dolby Cinema - Grand Mall',
+    director: 'James Cameron',
+    language: 'English',
+    genre: 'Sci-Fi / Adventure'
   },
   {
     id: 'VS-7840',
@@ -966,24 +985,102 @@ export const INITIAL_RECENT_BOOKINGS = [
     showtime: '4:00 PM',
     seats: ['D6', 'D7'],
     row: 'D',
+    pricePerSeat: 300,
+    baseTicketsTotal: 600,
+    convenienceFee: 45,
+    gst: 8.1,
     totalAmount: 600,
-    userEmail: 'rahul.dev@gmail.com',
-    userName: 'Rahul Dev',
-    date: 'Today, 11:20 AM',
-    status: 'Confirmed'
+    paymentMethod: 'Net Banking (HDFC Bank)',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: '28 Sep 2026',
+    createdAt: '2026-09-28T11:20:00.000Z',
+    status: 'Completed',
+    poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+    theatreId: 'th-5',
+    theatreName: 'VS Cinemas IMAX Dome - Phoenix Palladium',
+    director: 'Christopher Nolan',
+    language: 'English',
+    genre: 'Biography / Drama'
   },
   {
     id: 'VS-7839',
-    movieTitle: 'Another Earth',
-    screen: 'Screen 04 (Auditorium 4)',
-    showtime: '6:30 PM',
-    seats: ['B2'],
+    movieTitle: 'Dune: Part Two',
+    screen: 'Screen 01 (IMAX Laser 3D)',
+    showtime: '5:00 PM',
+    seats: ['E4', 'E5'],
+    row: 'E',
+    pricePerSeat: 420,
+    baseTicketsTotal: 840,
+    convenienceFee: 45,
+    gst: 8.1,
+    totalAmount: 840,
+    paymentMethod: 'Credit Card (•••• 8821)',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: 'Tomorrow',
+    createdAt: '2026-10-01T10:00:00.000Z',
+    status: 'Confirmed',
+    poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+    theatreId: 'th-1',
+    theatreName: 'VS Cinemas IMAX Laser - Central Galleria',
+    director: 'Denis Villeneuve',
+    language: 'English',
+    genre: 'Sci-Fi / Adventure'
+  },
+  {
+    id: 'VS-7838',
+    movieTitle: 'Spider-Man: Beyond the Spider-Verse',
+    screen: 'Screen 01 (IMAX Laser 3D)',
+    showtime: '7:45 PM',
+    seats: ['B3', 'B4'],
     row: 'B',
-    totalAmount: 220,
-    userEmail: 'neha.v@gmail.com',
-    userName: 'Neha Verma',
-    date: 'Yesterday',
-    status: 'Confirmed'
+    pricePerSeat: 380,
+    baseTicketsTotal: 760,
+    convenienceFee: 45,
+    gst: 8.1,
+    totalAmount: 760,
+    paymentMethod: 'Paytm Wallet',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: '25 Sep 2026',
+    createdAt: '2026-09-25T15:30:00.000Z',
+    status: 'Completed',
+    poster: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=600&auto=format&fit=crop&q=80',
+    theatreId: 'th-1',
+    theatreName: 'VS Cinemas IMAX Laser - Central Galleria',
+    director: 'Joaquim Dos Santos',
+    language: 'English',
+    genre: 'Animation / Action'
+  },
+  {
+    id: 'VS-7837',
+    movieTitle: 'Godzilla x Kong: The New Empire',
+    screen: 'Screen 02 (Dolby Cinema)',
+    showtime: '8:30 PM',
+    seats: ['D1', 'D2'],
+    row: 'D',
+    pricePerSeat: 340,
+    baseTicketsTotal: 680,
+    convenienceFee: 45,
+    gst: 8.1,
+    totalAmount: 680,
+    paymentMethod: 'Debit Card (•••• 1109)',
+    userEmail: 'vishnu.ramesh@gmail.com',
+    userName: 'Vishnu Ramesh',
+    date: '20 Sep 2026',
+    createdAt: '2026-09-20T18:00:00.000Z',
+    status: 'Cancelled',
+    cancelledAt: '2026-09-20T19:15:00.000Z',
+    cancellationReason: 'Change of schedule / personal plans',
+    refundStatus: 'Refund Credited',
+    refundAmount: 612,
+    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+    theatreId: 'th-2',
+    theatreName: 'VS Cinemas Dolby Cinema - Grand Mall',
+    director: 'Adam Wingard',
+    language: 'English',
+    genre: 'Action / Sci-Fi'
   }
 ]
 
@@ -1373,13 +1470,48 @@ export const movieService = {
         }
       }, 350)
     })
+  },
+
+  // Cancel an active booking and record refund status (Module 8 Feature: Cancel Booking)
+  async cancelBooking(bookingId, reason = 'Customer requested cancellation') {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const stored = localStorage.getItem('vscinemas_bookings')
+          let bookings = stored ? JSON.parse(stored) : [...INITIAL_RECENT_BOOKINGS]
+          const targetIndex = bookings.findIndex((b) => b.id === bookingId)
+          if (targetIndex === -1) {
+            return reject(new Error(`Booking with ID "${bookingId}" could not be found.`))
+          }
+
+          const existing = bookings[targetIndex]
+          const refundAmount = Math.round((Number(existing.totalAmount) || 0) * 0.9) // 90% refund after nominal fee
+          const updatedBooking = {
+            ...existing,
+            status: 'Cancelled',
+            cancelledAt: new Date().toISOString(),
+            cancellationReason: reason,
+            refundStatus: 'Refund Initiated',
+            refundAmount,
+            refundTxnId: `REF-${Math.floor(100000 + Math.random() * 900000)}`
+          }
+
+          bookings[targetIndex] = updatedBooking
+          localStorage.setItem('vscinemas_bookings', JSON.stringify(bookings))
+          resolve({ success: true, booking: updatedBooking })
+        } catch (err) {
+          reject(err)
+        }
+      }, 300)
+    })
   }
 }
 
-// Module 6: Booking Service Export
+// Module 6 & Module 8: Booking Service Export
 export const bookingService = {
   getBookedSeats: (...args) => movieService.getBookedSeats(...args),
   bookTickets: (...args) => movieService.bookTickets(...args),
+  cancelBooking: (...args) => movieService.cancelBooking(...args),
   getAllBookings: () => {
     try {
       const stored = localStorage.getItem('vscinemas_bookings')

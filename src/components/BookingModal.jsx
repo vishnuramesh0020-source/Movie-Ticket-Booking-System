@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { X, Clock, Ticket, CreditCard, ExternalLink } from 'lucide-react'
 import { toast } from 'react-toastify'

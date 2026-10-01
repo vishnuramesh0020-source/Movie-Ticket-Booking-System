@@ -1,4 +1,3 @@
-import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -16,6 +15,7 @@ import TheatreDetail from './pages/TheatreDetail'
 import SeatSelection from './pages/SeatSelection'
 import Payment from './pages/Payment'
 import Profile from './pages/Profile'
+import BookingHistory from './pages/BookingHistory'
 
 export default function App() {
   return (
@@ -138,7 +138,16 @@ export default function App() {
             }
           />
           <Route path="/my-profile" element={<Navigate to="/profile" replace />} />
-          <Route path="/my-bookings" element={<Navigate to="/profile" replace />} />
+          <Route
+            path="/booking-history"
+            element={
+              <ProtectedRoute>
+                <BookingHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/bookings" element={<Navigate to="/booking-history" replace />} />
+          <Route path="/my-bookings" element={<Navigate to="/booking-history" replace />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />
