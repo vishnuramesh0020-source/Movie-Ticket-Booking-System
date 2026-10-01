@@ -422,7 +422,7 @@ export default function TheatreDetail() {
                     <div>
                       <div className="flex items-center justify-between text-xs mb-1.5">
                         <span className="font-extrabold text-[11px] uppercase tracking-wider px-2 py-0.5 rounded bg-blue-600 text-white">
-                          {scr.type}
+                          Screen {scr.screenNumber} • {scr.type}
                         </span>
                         <span className="text-xs font-bold text-slate-600">
                           {scr.capacity} Seats

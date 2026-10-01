@@ -22,7 +22,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Navbar from '../components/Navbar'
-import TicketModal from '../components/TicketModal'
 import {
   movieService,
   THEATRES_LIST,
@@ -92,8 +91,6 @@ export default function SeatSelection() {
   const [zoomLevel, setZoomLevel] = useState(1) // 0.85 | 1 | 1.15 | 1.25
   // Post-booking & Modals
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTicket, setActiveTicket] = useState(null)
-  const [isTicketOpen, setIsTicketOpen] = useState(false)
 
   // Module 6: Movie & Cinema Selection Modals
   const [isMovieModalOpen, setIsMovieModalOpen] = useState(false)
@@ -326,31 +323,17 @@ export default function SeatSelection() {
         genre: movie.genre,
         theatreId: selectedTheatre.id,
         theatreName: selectedTheatre.name,
+        row: selectedSeats[0]?.row || 'D',
         userEmail: user?.email || 'guest@vscinemas.com',
         userName: user?.name || 'Valued Guest'
       }
 
-      const res = await movieService.bookTickets(payload)
-      if (res.success) {
-        toast.success(`🎉 Booked ${selectedSeats.length} ticket(s) for "${movie.title}"!`)
-        // Update local booked seats immediately
-        setExtraBookedSeats((prev) => [...prev, ...selectedSeats.map((s) => s.id)])
-        setSelectedSeats([])
-        setActiveTicket(res.booking)
-        setIsTicketOpen(true)
-      }
+      // Store in session for resilient page refresh on /payment
+      sessionStorage.setItem('vscinemas_pending_booking', JSON.stringify(payload))
+      navigate('/payment', { state: { bookingPayload: payload } })
     } catch (err) {
-      console.error('Booking failed:', err)
-      toast.error(err.message || 'Booking transaction could not be processed. Please retry.')
-      if (movie) {
-        const freshBooked = movieService.getBookedSeats(
-          movie.title,
-          selectedShowtime,
-          selectedDate.label,
-          selectedTheatre.id
-        )
-        setExtraBookedSeats((prev) => Array.from(new Set([...prev, ...freshBooked])))
-      }
+      console.error('Proceed to payment failed:', err)
+      toast.error('Unable to proceed to payment. Please retry.')
     } finally {
       setIsSubmitting(false)
     }
@@ -1067,7 +1050,7 @@ export default function SeatSelection() {
                           <CreditCard className="w-4 h-4" />
                           <span>
                             {selectedSeats.length > 0
-                              ? `Pay & Confirm ₹${grandTotal.toLocaleString('en-IN')}`
+                              ? `Proceed to Payment • ₹${grandTotal.toLocaleString('en-IN')}`
                               : 'Select Seats to Proceed'}
                           </span>
                         </>
@@ -1113,19 +1096,12 @@ export default function SeatSelection() {
             ) : (
               <>
                 <CreditCard className="w-3.5 h-3.5" />
-                <span>Book Now</span>
+                <span>Proceed to Pay</span>
               </>
             )}
           </button>
         </div>
       )}
-
-      {/* Official Confirmed E-Ticket Modal */}
-      <TicketModal
-        isOpen={isTicketOpen}
-        onClose={() => setIsTicketOpen(false)}
-        ticket={activeTicket}
-      />
 
       {/* Module 6: Interactive Movie Picker Modal */}
       <MoviePickerModal

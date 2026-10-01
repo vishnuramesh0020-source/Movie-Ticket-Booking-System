@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { X, Clock, Ticket, CreditCard, ExternalLink } from 'lucide-react'
 import { toast } from 'react-toastify'
 import {
@@ -16,9 +16,9 @@ export default function BookingModal({
   movie,
   onConfirmBooking
 }) {
+  const navigate = useNavigate()
   const [selectedShowtime, setSelectedShowtime] = useState(movie?.showtimes?.[0] || '7:45 PM')
   const [selectedSeats, setSelectedSeats] = useState(['D1', 'D2'])
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [prevMovieId, setPrevMovieId] = useState(movie?.id)
 
   if (movie && movie.id !== prevMovieId) {
@@ -48,35 +48,39 @@ export default function BookingModal({
     0
   )
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     if (selectedSeats.length === 0) {
       toast.warning('Please select at least one seat.')
       return
     }
 
-    setIsSubmitting(true)
-    try {
-      const avgPrice = Math.round(totalAmount / selectedSeats.length)
-      await onConfirmBooking({
-        movieId: movie.id,
-        movieTitle: movie.title,
-        screen: movie.screen || 'IMAX Laser 3D',
-        showtime: selectedShowtime,
-        date: 'Today',
-        theatreId: THEATRES_LIST[0].id,
-        theatreName: THEATRES_LIST[0].name,
-        seats: selectedSeats,
-        pricePerSeat: avgPrice,
-        totalAmount,
-        poster: movie.poster,
-        language: movie.language,
-        genre: movie.genre
-      })
-    } catch (err) {
-      toast.error(err.message || 'Booking transaction failed. Please retry.')
-    } finally {
-      setIsSubmitting(false)
+    const avgPrice = Math.round(totalAmount / selectedSeats.length)
+    const payload = {
+      movieId: movie.id,
+      movieTitle: movie.title,
+      screen: movie.screen || 'IMAX Laser 3D',
+      showtime: selectedShowtime,
+      date: 'Today',
+      theatreId: THEATRES_LIST[0].id,
+      theatreName: THEATRES_LIST[0].name,
+      seats: selectedSeats,
+      pricePerSeat: avgPrice,
+      totalAmount,
+      baseTicketsTotal: totalAmount,
+      convenienceFee: 45,
+      gst: 8.1,
+      poster: movie.poster,
+      language: movie.language,
+      genre: movie.genre
     }
+
+    if (typeof onConfirmBooking === 'function') {
+      onConfirmBooking(payload)
+    }
+
+    sessionStorage.setItem('vscinemas_pending_booking', JSON.stringify(payload))
+    onClose()
+    navigate('/payment', { state: { bookingPayload: payload } })
   }
 
   return (
@@ -371,18 +375,12 @@ export default function BookingModal({
 
           <button
             type="button"
-            disabled={isSubmitting || selectedSeats.length === 0}
+            disabled={selectedSeats.length === 0}
             onClick={handleConfirm}
             className="w-full xs:w-auto px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-[#007bff] hover:bg-[#0062cc] active:bg-[#0056b3] rounded-xl shadow-md shadow-blue-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {isSubmitting ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4" />
-                <span>Confirm & Pay ₹{totalAmount.toLocaleString('en-IN')}</span>
-              </>
-            )}
+            <CreditCard className="w-4 h-4" />
+            <span>Proceed to Payment • ₹{totalAmount.toLocaleString('en-IN')}</span>
           </button>
         </div>
       </div>

@@ -122,6 +122,26 @@ export async function getGenresMap() {
 // Fallback curated movies in case of offline/network failure
 const FALLBACK_MOVIES = [
   {
+    id: 677179,
+    title: 'Creed III',
+    overview: 'After dominating the boxing world, Adonis Creed has been thriving in both his career and family life. When a childhood friend and former boxing prodigy resurfaces, the face-off is more than just a fight.',
+    rating: 8.4,
+    voteCount: 3840,
+    poster: 'https://image.tmdb.org/t/p/w500/cvsXj3I9Q00I9igWv1hv39RuwNJ.jpg',
+    backdrop: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=1200&auto=format&fit=crop&q=80',
+    genre: 'Drama / Action',
+    genreIds: [18, 28],
+    language: 'English',
+    languageCode: 'en',
+    duration: '1h 56m',
+    runtimeMinutes: 116,
+    releaseDate: '2026-03-03',
+    screen: 'Screen 02 (Dolby Cinema)',
+    price: 350,
+    trailerKey: 'AHmCH7iB_IM',
+    showtimes: ['1:30 PM', '4:45 PM', '7:45 PM', '10:45 PM']
+  },
+  {
     id: 569094,
     title: 'Spider-Man: Beyond the Spider-Verse',
     overview: 'Miles Morales catapults across the Multiverse with Gwen Stacy and a team of Spider-Heroes to confront an enigmatic threat.',
@@ -136,7 +156,7 @@ const FALLBACK_MOVIES = [
     duration: '2h 20m',
     runtimeMinutes: 140,
     releaseDate: '2026-06-15',
-    screen: 'IMAX Laser 3D',
+    screen: 'Screen 01 (IMAX Laser 3D)',
     price: 380,
     trailerKey: 'cqGjhVJWtEg',
     showtimes: ['1:15 PM', '4:30 PM', '7:45 PM', '10:15 PM']
@@ -156,7 +176,7 @@ const FALLBACK_MOVIES = [
     duration: '1h 55m',
     runtimeMinutes: 115,
     releaseDate: '2026-03-29',
-    screen: 'Dolby Cinema',
+    screen: 'Screen 02 (Dolby Cinema)',
     price: 340,
     trailerKey: 'lV1OOlGwExg',
     showtimes: ['2:00 PM', '5:15 PM', '8:30 PM']
@@ -176,7 +196,7 @@ const FALLBACK_MOVIES = [
     duration: '2h 46m',
     runtimeMinutes: 166,
     releaseDate: '2026-03-01',
-    screen: 'IMAX Laser 3D',
+    screen: 'Screen 01 (IMAX Laser 3D)',
     price: 420,
     trailerKey: 'Way9Dexny3w',
     showtimes: ['1:30 PM', '5:00 PM', '8:45 PM']
@@ -196,7 +216,7 @@ const FALLBACK_MOVIES = [
     duration: '2h 50m',
     runtimeMinutes: 170,
     releaseDate: '2026-06-27',
-    screen: '4DX Atmos',
+    screen: 'Screen 03 (4DX Dynamic)',
     price: 360,
     trailerKey: 'kQDd1AhGIHk',
     showtimes: ['11:00 AM', '3:15 PM', '7:00 PM', '10:30 PM']
@@ -211,7 +231,7 @@ function formatTmdbMovie(raw, genresDict = {}) {
     .slice(0, 2)
     .join(' / ') || 'Cinema / Feature'
 
-  const screens = ['IMAX Laser 3D', 'Dolby Cinema', '4DX Atmos', 'Auditorium 1', 'Screen 3 VIP']
+  const screens = ['Screen 01 (IMAX Laser 3D)', 'Screen 02 (Dolby Cinema)', 'Screen 03 (4DX Dynamic)', 'Screen 04 (Premiere Club)', 'Screen 05 (Classic Cinema)']
   const screen = screens[Math.abs(Number(raw.id) || 0) % screens.length]
   const basePrice = 220 + ((Math.abs(Number(raw.id) || 0) % 5) * 40) // Indian Rupees (₹220 to ₹380)
 
@@ -910,22 +930,29 @@ export const REVENUE_DATA = {
 export const INITIAL_RECENT_BOOKINGS = [
   {
     id: 'VS-7842',
-    movieTitle: 'Top Gun: Maverick',
-    screen: 'IMAX Laser 3D',
+    movieTitle: 'Creed III',
+    screen: 'Screen 02 (Dolby Cinema)',
     showtime: '7:45 PM',
-    seats: ['E4', 'E5'],
+    seats: ['D13', 'D14'],
+    row: 'D',
     totalAmount: 520,
     userEmail: 'arun.kumar@gmail.com',
     userName: 'Arun Kumar',
     date: 'Today, 2:15 PM',
-    status: 'Confirmed'
+    status: 'Confirmed',
+    poster: 'https://image.tmdb.org/t/p/w500/cvsXj3I9Q00I9igWv1hv39RuwNJ.jpg',
+    theatreName: 'VS Cinemas Orion Mall',
+    director: 'Michael B. Jordan',
+    language: 'English',
+    genre: 'Drama / Action'
   },
   {
     id: 'VS-7841',
     movieTitle: 'Avatar: The Way of Water',
-    screen: 'Dolby Cinema',
+    screen: 'Screen 01 (Dolby Cinema)',
     showtime: '9:00 PM',
     seats: ['C3', 'C4', 'C5'],
+    row: 'C',
     totalAmount: 780,
     userEmail: 'priya.s@yahoo.com',
     userName: 'Priya Sharma',
@@ -935,9 +962,10 @@ export const INITIAL_RECENT_BOOKINGS = [
   {
     id: 'VS-7840',
     movieTitle: 'Oppenheimer',
-    screen: '70mm IMAX',
+    screen: 'Screen 01 (70mm IMAX)',
     showtime: '4:00 PM',
     seats: ['D6', 'D7'],
+    row: 'D',
     totalAmount: 600,
     userEmail: 'rahul.dev@gmail.com',
     userName: 'Rahul Dev',
@@ -947,9 +975,10 @@ export const INITIAL_RECENT_BOOKINGS = [
   {
     id: 'VS-7839',
     movieTitle: 'Another Earth',
-    screen: 'Auditorium 4',
+    screen: 'Screen 04 (Auditorium 4)',
     showtime: '6:30 PM',
     seats: ['B2'],
+    row: 'B',
     totalAmount: 220,
     userEmail: 'neha.v@gmail.com',
     userName: 'Neha Verma',

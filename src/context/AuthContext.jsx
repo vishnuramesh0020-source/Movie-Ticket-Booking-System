@@ -162,6 +162,49 @@ export function AuthProvider({ children }) {
     return { success: true }
   }, [registeredUsers])
 
+  // Update Profile handler
+  const updateProfile = useCallback((profileUpdates) => {
+    if (!user) return { success: false, message: 'No user logged in' }
+
+    const updatedUser = {
+      ...user,
+      ...profileUpdates
+    }
+
+    setUser(updatedUser)
+    localStorage.setItem('vscinemas_auth_user', JSON.stringify(updatedUser))
+
+    setRegisteredUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, ...profileUpdates } : u))
+    )
+
+    toast.success('Profile details updated successfully!')
+    return { success: true, user: updatedUser }
+  }, [user])
+
+  // Change Password handler
+  const updatePassword = useCallback((currentPassword, newPassword) => {
+    if (!user) return { success: false, message: 'No user logged in' }
+
+    const userInDb = registeredUsers.find((u) => u.id === user.id)
+    if (!userInDb) {
+      toast.error('User record not found.')
+      return { success: false, message: 'User record not found.' }
+    }
+
+    if (userInDb.password !== currentPassword) {
+      toast.error('Current password does not match.')
+      return { success: false, message: 'Current password does not match.' }
+    }
+
+    setRegisteredUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, password: newPassword } : u))
+    )
+
+    toast.success('Password updated successfully!')
+    return { success: true }
+  }, [user, registeredUsers])
+
   // Logout handler
   const logout = useCallback(() => {
     setUser(null)
@@ -176,8 +219,10 @@ export function AuthProvider({ children }) {
     login,
     register,
     forgotPassword,
+    updateProfile,
+    updatePassword,
     logout
-  }), [user, rememberedEmail, login, register, forgotPassword, logout])
+  }), [user, rememberedEmail, login, register, forgotPassword, updateProfile, updatePassword, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

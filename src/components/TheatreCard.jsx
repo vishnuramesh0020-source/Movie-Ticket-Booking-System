@@ -131,7 +131,7 @@ export default function TheatreCard({
                         {show.movieTitle}
                       </span>
                       <span className="text-[10px] text-slate-500 font-medium block">
-                        {show.time} • {show.format}
+                        {show.time} • {show.screen ? `${show.screen.split('(')[0]?.trim()} • ` : ''}{show.format}
                       </span>
                     </div>
                     <span className="text-xs font-black text-[#228653] shrink-0 bg-emerald-50 px-1.5 py-0.5 rounded">

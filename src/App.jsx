@@ -14,6 +14,8 @@ import MovieDetail from './pages/MovieDetail'
 import Theatres from './pages/Theatres'
 import TheatreDetail from './pages/TheatreDetail'
 import SeatSelection from './pages/SeatSelection'
+import Payment from './pages/Payment'
+import Profile from './pages/Profile'
 
 export default function App() {
   return (
@@ -118,6 +120,25 @@ export default function App() {
           <Route path="/seats" element={<Navigate to="/booking" replace />} />
           <Route path="/seats/:movieId" element={<Navigate to="/booking/:movieId" replace />} />
           <Route path="/book" element={<Navigate to="/booking" replace />} />
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute>
+                <Payment />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/checkout" element={<Navigate to="/payment" replace />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/my-profile" element={<Navigate to="/profile" replace />} />
+          <Route path="/my-bookings" element={<Navigate to="/profile" replace />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/login" replace />} />

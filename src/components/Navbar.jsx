@@ -21,7 +21,10 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
     location.pathname.startsWith('/seat-selection') ||
     location.pathname.startsWith('/seats') ||
     location.pathname.startsWith('/booking') ||
-    location.pathname.startsWith('/book')
+    location.pathname.startsWith('/book') ||
+    location.pathname.startsWith('/payment') ||
+    location.pathname.startsWith('/checkout')
+  const isProfile = location.pathname.startsWith('/profile')
 
   const handleSearchSubmit = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -150,26 +153,34 @@ export default function Navbar({ searchQuery = '', onSearchChange, searchPlaceho
             <Bell className="w-4 h-4" />
           </button>
 
-          {/* User Profile */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* User Profile Pill */}
+          <Link
+            to="/profile"
+            className={`flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-2xl border transition-all cursor-pointer ${
+              isProfile
+                ? 'bg-blue-50/80 border-blue-300 ring-2 ring-blue-500/20 shadow-2xs'
+                : 'border-transparent hover:bg-slate-100 hover:border-slate-200'
+            }`}
+            title="View My Profile"
+          >
             <img
               src={user?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"}
-              alt={user?.name || "Alex Ragnarsson"}
+              alt={user?.name || "Vishnu Ramesh"}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-slate-100 shadow-2xs shrink-0"
               onError={(e) => {
                 e.target.onerror = null
-                e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'Alex Ragnarsson')}`
+                e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'Vishnu Ramesh')}`
               }}
             />
             <div className="hidden md:block text-left">
               <p className="text-xs font-bold text-slate-800 leading-tight">
-                {user?.name || 'Alex Ragnarsson'}
+                {user?.name || 'Vishnu Ramesh'}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">
-                Admin Store
+              <p className="text-[10px] text-blue-600 font-bold">
+                {user?.membershipTier || 'VS Elite Member'}
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Logout */}
           <button
