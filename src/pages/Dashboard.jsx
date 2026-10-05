@@ -86,32 +86,50 @@ export default function Dashboard() {
 
   useEffect(() => {
     const unsubscribe = bookingService.subscribe((updated) => {
-      setBookings(updated)
-      if (updated.length > 0) {
-        setLiveHighlightId(updated[0].id)
-      }
+      setBookings((prev) => {
+        if (
+          updated.length > prev.length &&
+          updated[0]?.id !== prev[0]?.id &&
+          updated[0]?.status !== 'Cancelled'
+        ) {
+          setLiveHighlightId(updated[0].id)
+        }
+        return updated
+      })
     })
     return unsubscribe
   }, [])
 
+  // Auto-clear live highlight pulse after 6 seconds
+  useEffect(() => {
+    if (!liveHighlightId) return
+    const timer = setTimeout(() => {
+      setLiveHighlightId(null)
+    }, 6000)
+    return () => clearTimeout(timer)
+  }, [liveHighlightId])
+
   // Dynamic Live Revenue Summary Calculation
   const revenueSummary = useMemo(() => {
-    const liveRevenue = bookings
-      .filter((b) => b.status !== 'Cancelled')
+    const confirmed = bookings.filter((b) => b.status !== 'Cancelled')
+    const liveRevenue = confirmed.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+
+    const liveToday = confirmed
+      .filter((b) => {
+        if (b.date?.includes('Today') || b.date?.includes('Just now') || !b.date) return true
+        if (b.createdAt) {
+          return new Date(b.createdAt).toDateString() === new Date().toDateString()
+        }
+        return false
+      })
       .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
 
-    const liveToday = bookings
-      .filter(
-        (b) =>
-          b.status !== 'Cancelled' &&
-          (b.date?.includes('Today') || b.date?.includes('Just now') || !b.date)
-      )
-      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
-
-    const totalTicketsSold = 1420 * 2.4 + bookings.reduce((sum, b) => sum + (b.seats?.length || 2), 0)
+    const totalTicketsSold =
+      1420 * 2.4 +
+      confirmed.reduce((sum, b) => sum + (Array.isArray(b.seats) ? b.seats.length : 2), 0)
     const totalRev = REVENUE_DATA.totalRevenue + liveRevenue
     const avgPrice = Math.round(totalRev / Math.max(1, totalTicketsSold))
-    const occupancy = Math.min(97.8, Number((84.6 + bookings.length * 0.12).toFixed(1)))
+    const occupancy = Math.min(97.8, Number((84.6 + confirmed.length * 0.12).toFixed(1)))
 
     return {
       ...REVENUE_DATA,
@@ -201,7 +219,10 @@ export default function Dashboard() {
       const res = await movieService.bookTickets(bookingPayload)
       if (res.success) {
         toast.success(`🎉 Booked ${payload.seats.length} ticket(s) for "${payload.movieTitle}"!`)
-        setBookings((prev) => [res.booking, ...prev])
+        setBookings((prev) => {
+          if (prev.some((b) => b.id === res.booking.id)) return prev
+          return [res.booking, ...prev]
+        })
         setIsBookingOpen(false)
         setActiveTicket(res.booking)
         setIsTicketOpen(true)
@@ -215,25 +236,62 @@ export default function Dashboard() {
   // Summary Metrics calculations
   const totalMoviesCount = nowPlayingMovies.length + upcomingMovies.length
   const totalTheatresCount = theatres.length
-  const totalBookingsCount = 1420 + bookings.length
+  const totalBookingsCount = 1420 + bookings.filter((b) => b.status !== 'Cancelled').length
   const availableShowsCount = theatres.reduce((acc, t) => acc + t.dailyShows, 0)
-  const todayBookingsCount = bookings.filter((b) => b.date?.includes('Today') || b.date?.includes('Just now')).length + 48
+  const todayBookingsCount = useMemo(() => {
+    return (
+      bookings.filter((b) => {
+        if (b.status === 'Cancelled') return false
+        if (b.date?.includes('Today') || b.date?.includes('Just now') || !b.date) return true
+        if (b.createdAt) {
+          return new Date(b.createdAt).toDateString() === new Date().toDateString()
+        }
+        return false
+      }).length + 48
+    )
+  }, [bookings])
 
   // Current displayed movie list based on active tab
   const displayedMovies = activeTab === 'upcoming' ? upcomingMovies : nowPlayingMovies
   const visibleMovies = displayedMovies.slice(0, visibleCount)
 
-  // Revenue statistic bar chart dataset with real values in INR
-  const revenueChartData = [
-    { m: 'Jan', imax: 63000, dolby: 58000, gH: 135, bH: 100, x: 60, tickets: 420, quarter: 'Q1', growth: '+14%' },
-    { m: 'Feb', imax: 57500, dolby: 55000, gH: 95, bH: 75, x: 120, tickets: 380, quarter: 'Q1', growth: '+8%' },
-    { m: 'Mar', imax: 60500, dolby: 57000, gH: 115, bH: 90, x: 180, tickets: 410, quarter: 'Q1', growth: '+12%' },
-    { m: 'Apr', imax: 65000, dolby: 59000, gH: 150, bH: 105, x: 240, tickets: 460, quarter: 'Q1', growth: '+19%' },
-    { m: 'May', imax: 68000, dolby: 60000, gH: 170, bH: 110, x: 300, tickets: 510, quarter: 'Q2', growth: '+28%' },
-    { m: 'Jun', imax: 59500, dolby: 55500, gH: 110, bH: 80, x: 360, tickets: 395, quarter: 'Q2', growth: '+10%' },
-    { m: 'Jul', imax: 64000, dolby: 58500, gH: 140, bH: 100, x: 420, tickets: 445, quarter: 'Q2', growth: '+18%' },
-    { m: 'Aug', imax: 64000, dolby: 58500, gH: 140, bH: 100, x: 480, tickets: 445, quarter: 'Q2', growth: '+17%' }
-  ]
+  // Revenue statistic bar chart dataset with real values in INR (Live synchronised with bookings)
+  const revenueChartData = useMemo(() => {
+    const confirmed = bookings.filter((b) => b.status !== 'Cancelled')
+    const liveImax = confirmed
+      .filter((b) => (b.screen || b.theatreName || '').toLowerCase().includes('imax'))
+      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+
+    const liveDolby = confirmed
+      .filter((b) => !(b.screen || b.theatreName || '').toLowerCase().includes('imax'))
+      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+
+    const liveTickets = confirmed.reduce(
+      (sum, b) => sum + (Array.isArray(b.seats) ? b.seats.length : 2),
+      0
+    )
+
+    return [
+      { m: 'Jan', imax: 63000, dolby: 58000, gH: 135, bH: 100, x: 60, tickets: 420, quarter: 'Q1', growth: '+14%' },
+      { m: 'Feb', imax: 57500, dolby: 55000, gH: 95, bH: 75, x: 120, tickets: 380, quarter: 'Q1', growth: '+8%' },
+      { m: 'Mar', imax: 60500, dolby: 57000, gH: 115, bH: 90, x: 180, tickets: 410, quarter: 'Q1', growth: '+12%' },
+      { m: 'Apr', imax: 65000, dolby: 59000, gH: 150, bH: 105, x: 240, tickets: 460, quarter: 'Q1', growth: '+19%' },
+      { m: 'May', imax: 68000, dolby: 60000, gH: 170, bH: 110, x: 300, tickets: 510, quarter: 'Q2', growth: '+28%' },
+      { m: 'Jun', imax: 59500, dolby: 55500, gH: 110, bH: 80, x: 360, tickets: 395, quarter: 'Q2', growth: '+10%' },
+      { m: 'Jul', imax: 64000, dolby: 58500, gH: 140, bH: 100, x: 420, tickets: 445, quarter: 'Q2', growth: '+18%' },
+      {
+        m: 'Aug',
+        imax: 64000 + liveImax,
+        dolby: 58500 + liveDolby,
+        gH: Math.min(185, 140 + Math.round(liveImax / 80)),
+        bH: Math.min(185, 100 + Math.round(liveDolby / 80)),
+        x: 480,
+        tickets: 445 + liveTickets,
+        quarter: 'Q2',
+        growth: '+17%'
+      }
+    ]
+  }, [bookings])
 
   // Filtered revenue bars based on selected period
   const filteredRevenueBars = revenueChartData.filter((item) => {
@@ -243,59 +301,120 @@ export default function Dashboard() {
   })
 
   // Profit chart spline dataset with occupancy and profit values
-  const profitChartData = [
-    { m: 'Jan', x: 50, profitY: 155, occupancyY: 140, profitVal: '75%', occupancyVal: '79%', revenue: '₹48,200', note: 'New Year Releases' },
-    { m: 'Feb', x: 125, profitY: 135, occupancyY: 170, profitVal: '79%', occupancyVal: '84%', revenue: '₹52,400', note: 'Valentine Weekend' },
-    { m: 'Mar', x: 200, profitY: 195, occupancyY: 195, profitVal: '67%', occupancyVal: '65%', revenue: '₹41,000', note: 'Pre-Summer Lull' },
-    { m: 'Apr', x: 280, profitY: 110, occupancyY: 125, profitVal: '92%', occupancyVal: '80%', revenue: '₹61,800', note: 'Summer Blockbusters' },
-    { m: 'May', x: 355, profitY: 60, occupancyY: 95, profitVal: '105%', occupancyVal: '92%', revenue: '₹74,500', note: 'Peak Vacation Surge' },
-    { m: 'Jun', x: 435, profitY: 140, occupancyY: 135, profitVal: '81%', occupancyVal: '87%', revenue: '₹55,200', note: 'Monsoon Premieres' },
-    { m: 'Jul', x: 510, profitY: 155, occupancyY: 125, profitVal: '76%', occupancyVal: '94%', revenue: '₹49,800', note: 'Mid-Year Releases' }
-  ]
+  const profitChartData = useMemo(() => {
+    return [
+      { m: 'Jan', x: 50, profitY: 155, occupancyY: 140, profitVal: '75%', occupancyVal: '79%', revenue: '₹48,200', note: 'New Year Releases' },
+      { m: 'Feb', x: 125, profitY: 135, occupancyY: 170, profitVal: '79%', occupancyVal: '84%', revenue: '₹52,400', note: 'Valentine Weekend' },
+      { m: 'Mar', x: 200, profitY: 195, occupancyY: 195, profitVal: '67%', occupancyVal: '65%', revenue: '₹41,000', note: 'Pre-Summer Lull' },
+      { m: 'Apr', x: 280, profitY: 110, occupancyY: 125, profitVal: '92%', occupancyVal: '80%', revenue: '₹61,800', note: 'Summer Blockbusters' },
+      { m: 'May', x: 355, profitY: 60, occupancyY: 95, profitVal: '105%', occupancyVal: '92%', revenue: '₹74,500', note: 'Peak Vacation Surge' },
+      { m: 'Jun', x: 435, profitY: 140, occupancyY: 135, profitVal: '81%', occupancyVal: '87%', revenue: '₹55,200', note: 'Monsoon Premieres' },
+      {
+        m: 'Jul',
+        x: 510,
+        profitY: 155,
+        occupancyY: 125,
+        profitVal: '84%',
+        occupancyVal: `${revenueSummary.seatOccupancyRate}%`,
+        revenue: `₹${revenueSummary.todayRevenue.toLocaleString('en-IN')}`,
+        note: 'Live Collection Trend'
+      }
+    ]
+  }, [revenueSummary])
 
-  // Cinema Screen Format & Sales Share dataset (Cinema Analytics)
-  const formatShareData = [
-    {
-      id: 'imax',
-      name: 'IMAX Laser',
-      share: 42,
-      revenue: 284000,
-      tickets: 1840,
-      color: '#228653',
-      occupancy: '94%',
-      badge: '+38% YoY'
-    },
-    {
-      id: 'dolby',
-      name: 'Dolby Cinema',
-      share: 34,
-      revenue: 195000,
-      tickets: 1420,
-      color: '#2163e8',
-      occupancy: '89%',
-      badge: '+22% YoY'
-    },
-    {
-      id: '4dx',
-      name: '4DX Dynamic',
-      share: 15,
-      revenue: 98000,
-      tickets: 650,
-      color: '#8b5cf6',
-      occupancy: '82%',
-      badge: '+15% YoY'
-    },
-    {
-      id: 'standard',
-      name: 'Standard 2D',
-      share: 9,
-      revenue: 42000,
-      tickets: 410,
-      color: '#ea580c',
-      occupancy: '71%',
-      badge: 'Steady'
+  // Cinema Screen Format & Sales Share dataset (Cinema Analytics) - Dynamically calculated from live bookings
+  const { formatShareData, totalFormatSales, totalFormatRevenue, topFormat } = useMemo(() => {
+    const confirmed = bookings.filter((b) => b.status !== 'Cancelled')
+
+    let imaxRev = 284000
+    let imaxTix = 1840
+    let dolbyRev = 195000
+    let dolbyTix = 1420
+    let fourDxRev = 98000
+    let fourDxTix = 650
+    let stdRev = 42000
+    let stdTix = 410
+
+    confirmed.forEach((b) => {
+      const scr = (b.screen || b.theatreName || '').toLowerCase()
+      const amt = Number(b.totalAmount) || 0
+      const tix = Array.isArray(b.seats) ? b.seats.length : 2
+
+      if (scr.includes('imax')) {
+        imaxRev += amt
+        imaxTix += tix
+      } else if (scr.includes('4dx')) {
+        fourDxRev += amt
+        fourDxTix += tix
+      } else if (scr.includes('standard') || scr.includes('auditorium')) {
+        stdRev += amt
+        stdTix += tix
+      } else {
+        dolbyRev += amt
+        dolbyTix += tix
+      }
+    })
+
+    const grandRev = imaxRev + dolbyRev + fourDxRev + stdRev
+    const grandTix = imaxTix + dolbyTix + fourDxTix + stdTix
+
+    const imaxShare = Math.round((imaxRev / grandRev) * 100)
+    const dolbyShare = Math.round((dolbyRev / grandRev) * 100)
+    const fourDxShare = Math.round((fourDxRev / grandRev) * 100)
+    const stdShare = Math.max(0, 100 - (imaxShare + dolbyShare + fourDxShare))
+
+    const formats = [
+      {
+        id: 'imax',
+        name: 'IMAX Laser',
+        share: imaxShare,
+        revenue: imaxRev,
+        tickets: imaxTix,
+        color: '#228653',
+        occupancy: '94%',
+        badge: '+38% YoY'
+      },
+      {
+        id: 'dolby',
+        name: 'Dolby Cinema',
+        share: dolbyShare,
+        revenue: dolbyRev,
+        tickets: dolbyTix,
+        color: '#2163e8',
+        occupancy: '89%',
+        badge: '+22% YoY'
+      },
+      {
+        id: '4dx',
+        name: '4DX Dynamic',
+        share: fourDxShare,
+        revenue: fourDxRev,
+        tickets: fourDxTix,
+        color: '#8b5cf6',
+        occupancy: '82%',
+        badge: '+15% YoY'
+      },
+      {
+        id: 'standard',
+        name: 'Standard 2D',
+        share: stdShare,
+        revenue: stdRev,
+        tickets: stdTix,
+        color: '#ea580c',
+        occupancy: '71%',
+        badge: 'Steady'
+      }
+    ]
+
+    const sorted = [...formats].sort((a, b) => b.share - a.share)
+
+    return {
+      formatShareData: formats,
+      totalFormatSales: grandTix,
+      totalFormatRevenue: grandRev,
+      topFormat: sorted[0]
     }
-  ]
+  }, [bookings])
 
   // Avatar presets for team stack display
   const customerAvatars = [
@@ -1274,14 +1393,20 @@ export default function Dashboard() {
                       <td className="py-3.5 px-3 text-center">
                         <span
                           className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${
-                            b.id === liveHighlightId
+                            b.status === 'Cancelled'
+                              ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                              : b.id === liveHighlightId
                               ? 'bg-emerald-600 text-white animate-pulse'
                               : idx === 0
                               ? 'bg-[#ea580c] text-white'
                               : 'bg-emerald-50 text-emerald-700'
                           }`}
                         >
-                          {b.id === liveHighlightId ? 'Just now' : (b.status || 'Confirmed')}
+                          {b.status === 'Cancelled'
+                            ? 'Cancelled'
+                            : b.id === liveHighlightId
+                            ? 'Just now'
+                            : (b.status || 'Confirmed')}
                         </span>
                       </td>
 
@@ -1294,7 +1419,10 @@ export default function Dashboard() {
                       <td className="py-3.5 px-3 text-right">
                         <button
                           type="button"
-                          onClick={() => setActiveTicket(b)}
+                          onClick={() => {
+                            setActiveTicket(b)
+                            setIsTicketOpen(true)
+                          }}
                           className="text-xs font-bold text-[#1f66d0] hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors cursor-pointer"
                         >
                           View Pass
@@ -1341,11 +1469,10 @@ export default function Dashboard() {
                   {(() => {
                     const radius = 56
                     const circumference = 2 * Math.PI * radius
-                    let cumulative = 0
-                    return formatShareData.map((item) => {
+                    return formatShareData.map((item, idx) => {
+                      const prevShare = formatShareData.slice(0, idx).reduce((sum, it) => sum + it.share, 0)
                       const dashLength = (item.share / 100) * circumference
-                      const dashOffset = -(cumulative / 100) * circumference
-                      cumulative += item.share
+                      const dashOffset = -(prevShare / 100) * circumference
                       const isSelected = selectedFormat?.id === item.id
 
                       return (
@@ -1391,10 +1518,10 @@ export default function Dashboard() {
                         Total Sales
                       </span>
                       <span className="text-xl font-extrabold text-slate-900 leading-tight">
-                        4,320
+                        {totalFormatSales.toLocaleString('en-IN')}
                       </span>
                       <span className="text-[10px] text-slate-500 font-medium">
-                        ₹6.19L Gross
+                        ₹{(totalFormatRevenue / 100000).toFixed(2)}L Gross
                       </span>
                     </>
                   )}
@@ -1455,7 +1582,7 @@ export default function Dashboard() {
             <div className="pt-3 border-t border-slate-100 mt-3 text-[11px] text-slate-500 flex items-center justify-between">
               <span className="flex items-center gap-1 font-semibold text-slate-700">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                Top: IMAX Laser (42% Share)
+                Top: {topFormat?.name || 'IMAX Laser'} ({topFormat?.share || 42}% Share)
               </span>
               <span className="text-[#228653] font-bold">VS Central Live</span>
             </div>
